@@ -26,6 +26,39 @@
         }
       }
     },
+    "signupInvalidEmail" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invalid email"
+          }
+        }
+      }
+    },
+    "signupInvalidPassword" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Invalid password, it must contain at lest 8 characters and a number"
+          }
+        }
+      }
+    },
+    "signupNotMatchingPassword" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passwords does not match"
+          }
+        }
+      }
+    },
     "signupPasswordPlaceholder" : {
       "extractionState" : "manual",
       "localizations" : {
