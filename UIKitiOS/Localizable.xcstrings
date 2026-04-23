@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Key" : {
+      "extractionState" : "manual"
+    },
     "signupButtonTitle" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -19,6 +22,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "apa@mail.com"
+          }
+        }
+      }
+    },
+    "signupPasswordPlaceholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "open ses4m3!"
           }
         }
       }

@@ -20,30 +20,45 @@ final class RootViewController: UIViewController {
         let button = UIButton.init(type: .roundedRect)
         button.setTitle(String(localized: .signupButtonTitle), for: .normal)
         button.addAction(UIAction{ [weak self] _ in self?.didTapSignupButton()}, for: .touchUpInside)
+        button.isEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
 
-    private lazy var emailTextField: UITextField = {
-        let textField = UITextField()
-        textField.keyboardType = .emailAddress
-        textField.autocapitalizationType = .none
-        textField.autocorrectionType = .no
-        textField.placeholder = String(localized: .signupEmailPlaceholder)
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        return textField
-    }()
-
+    private lazy var emailTextField = UITextField.make(
+        placeholderL10NKey: .signupEmailPlaceholder,
+        keyboardType: .emailAddress,
+        isSecureTextEntry: false,
+        onEditingChanged: { emailText in print("Email editing changed: \(emailText)")}
+    )
+    
+    private lazy var passwordTextField = UITextField.make(
+        placeholderL10NKey: .signupPasswordPlaceholder,
+        onEditingChanged: {
+            passwordText in print(
+                "Password editing changed: \(passwordText)"
+            )
+        })
+    
+    private lazy var passwordConfirmationTextField = UITextField.make(
+        placeholderL10NKey: .signupPasswordPlaceholder,
+        onEditingChanged: {
+            passwordConfirmation in print("Password confirmation editing changed: \(passwordConfirmation)" )
+        })
+    
     private lazy var stackView: UIStackView = {
         let stackView = UIStackView(
             arrangedSubviews: [
                 label,
                 emailTextField,
+                passwordTextField,
+                passwordConfirmationTextField,
                 button,
                 .spacer
             ]
         )
         stackView.axis = .vertical
+        stackView.alignment = .fill
         stackView.spacing = 16
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
@@ -86,6 +101,23 @@ private extension RootViewController {
     private func didTapSignupButton() {
         print("Tapped!")
     }
+}
 
-
+extension UITextField {
+    static func make(
+        placeholderL10NKey: LocalizedStringResource,
+        keyboardType: UIKeyboardType = .default,
+        isSecureTextEntry: Bool = true,
+        onEditingChanged: @escaping (String) -> Void,
+    ) -> UITextField {
+        let textField = UITextField()
+        textField.keyboardType = keyboardType
+        textField.autocapitalizationType = .none
+        textField.autocorrectionType = .no
+        textField.isSecureTextEntry = isSecureTextEntry
+        textField.placeholder = String(localized: placeholderL10NKey)
+        textField.addAction(UIAction { _ in onEditingChanged(textField.text ?? "") }, for: .editingChanged)
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        return textField
+    }
 }
