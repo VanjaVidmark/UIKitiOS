@@ -29,21 +29,19 @@ final class RootViewController: UIViewController {
         placeholderL10NKey: .signupEmailPlaceholder,
         keyboardType: .emailAddress,
         isSecureTextEntry: false,
-        onEditingChanged: { emailText in print("Email editing changed: \(emailText)")}
+        onEditingChanged: { [weak self] emailText in self?.configureSubviews()}
     )
     
     private lazy var passwordTextField = UITextField.make(
         placeholderL10NKey: .signupPasswordPlaceholder,
-        onEditingChanged: {
-            passwordText in print(
-                "Password editing changed: \(passwordText)"
-            )
+        onEditingChanged: { [weak self]
+            passwordText in self?.configureSubviews()
         })
     
     private lazy var passwordConfirmationTextField = UITextField.make(
         placeholderL10NKey: .signupPasswordPlaceholder,
-        onEditingChanged: {
-            passwordConfirmation in print("Password confirmation editing changed: \(passwordConfirmation)" )
+        onEditingChanged: { [weak self]
+            passwordConfirmation in self?.configureSubviews()
         })
     
     private lazy var stackView: UIStackView = {
@@ -100,6 +98,17 @@ extension RootViewController {
 private extension RootViewController {
     private func didTapSignupButton() {
         print("Tapped!")
+    }
+    
+    var canSignUp: Bool {
+        let isEmailValid = !(emailTextField.text?.isEmpty ?? false)
+        let isPasswordValid = !(passwordTextField.text?.isEmpty ?? false)
+        let doesPasswordMatch = passwordTextField.text == passwordConfirmationTextField.text
+        return isEmailValid && isPasswordValid && doesPasswordMatch
+    }
+    
+    func configureSubviews() {
+        button.isEnabled = canSignUp
     }
 }
 
