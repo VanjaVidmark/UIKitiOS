@@ -15,7 +15,7 @@ final class RootViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
+
     private lazy var button: UIButton = {
         let button = UIButton.init(type: .roundedRect)
         button.setTitle(String(localized: .signupButtonTitle), for: .normal)
@@ -23,13 +23,37 @@ final class RootViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-    
+
+    private lazy var emailTextField: UITextField = {
+        let textField = UITextField()
+        textField.keyboardType = .emailAddress
+        textField.autocapitalizationType = .none
+        textField.autocorrectionType = .no
+        textField.placeholder = String(localized: .signupEmailPlaceholder)
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        return textField
+    }()
+
     private lazy var stackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [label, button])
+        let stackView = UIStackView(
+            arrangedSubviews: [
+                label,
+                emailTextField,
+                button,
+                .spacer
+            ]
+        )
         stackView.axis = .vertical
         stackView.spacing = 16
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
+    }()
+
+    private lazy var scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.contentInsetAdjustmentBehavior = .automatic
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        return scrollView
     }()
 }
 
@@ -38,15 +62,22 @@ extension RootViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .red
-        view.addSubview(stackView)
-        
+
+        scrollView.addSubview(stackView)
+        view.addSubview(scrollView)
+
         NSLayoutConstraint.activate([
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            stackView.topAnchor.constraint(equalTo: view.topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
+
+            stackView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
+            stackView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
+            stackView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
+            stackView.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor),
         ])
-        
     }
 }
 
@@ -55,5 +86,6 @@ private extension RootViewController {
     private func didTapSignupButton() {
         print("Tapped!")
     }
-}
 
+
+}

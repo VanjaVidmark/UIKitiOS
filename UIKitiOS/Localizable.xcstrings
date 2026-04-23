@@ -12,6 +12,17 @@
         }
       }
     },
+    "signupEmailPlaceholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "apa@mail.com"
+          }
+        }
+      }
+    },
     "signupWelcomeLabel" : {
       "extractionState" : "manual",
       "localizations" : {
