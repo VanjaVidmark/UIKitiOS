@@ -8,8 +8,9 @@
 import UIKit
 
 // MARK: RootViewController
+
 final class RootViewController: UIViewController {
-    private lazy var label: UILabel = {
+    private lazy var welcomeLabel: UILabel = {
         let label = UILabel()
         label.text = String(localized: .signupWelcomeLabel)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -25,57 +26,57 @@ final class RootViewController: UIViewController {
         return button
     }()
     
+    // Email
+    private lazy var emailInputLabel = UILabel.makeInputLabel(text: String(localized: .signupEmailLabel))
     private lazy var emailTextField = UITextField.make(
         placeholderL10NKey: .signupEmailPlaceholder,
         keyboardType: .emailAddress,
         isSecureTextEntry: false,
-        onEditingChanged: { [weak self] emailText in self?.configureSubviews()},
+        onEditingChanged: { [weak self] _ in self?.configureSubviews()},
         onEditingEnded: { [weak self] _ in self?.configureSubviews(fieldToValidate: .email)}
     )
+    private lazy var emailErrorLabel = UILabel.makeErrorLabel()
     
-    private lazy var emailErrorLabel: UILabel = {
-        let label = UILabel()
-        label.isHidden = true
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
+    // Password
+    private lazy var passwordInputLabel = UILabel.makeInputLabel(text: String(localized: .signupPasswordLabel))
     private lazy var passwordTextField = UITextField.make(
         placeholderL10NKey: .signupPasswordPlaceholder,
-        onEditingChanged: { [weak self] passwordText in self?.configureSubviews()},
-        onEditingEnded: { [weak self] _ in self?.configureSubviews(fieldToValidate: .password)},
+        onEditingChanged: { [weak self] _ in self?.configureSubviews()},
+        onEditingEnded: { [weak self] _ in self?.configureSubviews(fieldToValidate: .password)}
     )
+
+    private lazy var passwordErrorLabel = UILabel.makeErrorLabel()
     
-    private lazy var passwordErrorLabel: UILabel = {
-        let label = UILabel()
-        label.isHidden = true
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
+    // Password confirmation
+    private lazy var passwordConfirmationInputLabel = UILabel.makeInputLabel(text: String(localized: .signupConfirmPasswordLabel))
     
     private lazy var passwordConfirmationTextField = UITextField.make(
         placeholderL10NKey: .signupPasswordPlaceholder,
-        onEditingChanged: { [weak self] passwordConfirmation in self?.configureSubviews()},
-        onEditingEnded: {[weak self] _ in self?.configureSubviews(fieldToValidate: .passwordConfirmation)}
+        onEditingChanged: { [weak self] _ in self?.configureSubviews()},
+        onEditingEnded: { [weak self] _ in self?.configureSubviews(fieldToValidate: .passwordConfirmation)}
     )
-    
-    private lazy var passwordConfirmationErrorLabel: UILabel = {
-        let label = UILabel()
-        label.isHidden = true
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
+
+    private lazy var passwordConfirmationErrorLabel = UILabel.makeErrorLabel()
+
     private lazy var stackView: UIStackView = {
         let stackView = UIStackView(
             arrangedSubviews: [
-                label,
-                emailTextField,
-                emailErrorLabel,
-                passwordTextField,
-                passwordErrorLabel,
-                passwordConfirmationTextField,
-                passwordConfirmationErrorLabel,
+                welcomeLabel,
+                makeInputStackView(
+                    inputLabel: emailInputLabel,
+                    inputTextField: emailTextField,
+                    inputErrorLabel: emailErrorLabel
+                ),
+                makeInputStackView(
+                    inputLabel: passwordInputLabel,
+                    inputTextField: passwordTextField,
+                    inputErrorLabel: passwordErrorLabel
+                ),
+                makeInputStackView(
+                    inputLabel: passwordConfirmationInputLabel,
+                    inputTextField: passwordConfirmationTextField,
+                    inputErrorLabel: passwordConfirmationErrorLabel
+                ),
                 button,
                 .spacer
             ]
@@ -175,6 +176,24 @@ private extension RootViewController {
     }
 }
 
+extension UILabel {
+    static func makeInputLabel(text: String) -> UILabel {
+        let label = UILabel()
+        label.text = text
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }
+
+    static func makeErrorLabel() -> UILabel {
+        let label = UILabel()
+        label.isHidden = true
+        label.textColor = .red
+        label.numberOfLines = 2
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }
+}
+
 extension UITextField {
     static func make(
         placeholderL10NKey: LocalizedStringResource,
@@ -191,8 +210,30 @@ extension UITextField {
         textField.placeholder = String(localized: placeholderL10NKey)
         textField.addAction(UIAction { _ in onEditingChanged(textField.text ?? "") }, for: .editingChanged)
         textField.addAction(UIAction {_ in onEditingEnded(textField.text ?? "")}, for: .editingDidEnd)
+        textField.borderStyle = .roundedRect
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
+    }
+}
+
+extension RootViewController {
+    private func makeInputStackView(
+        inputLabel: UILabel,
+        inputTextField: UITextField,
+        inputErrorLabel: UILabel,
+    ) -> UIStackView {
+        let stackView = UIStackView(
+            arrangedSubviews: [
+                inputLabel,
+                inputTextField,
+                inputErrorLabel
+            ]
+        )
+        stackView.axis = .vertical
+        stackView.alignment = .fill
+        stackView.spacing = 10
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        return stackView
     }
 }
 
