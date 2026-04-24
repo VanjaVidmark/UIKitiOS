@@ -27,53 +27,44 @@ final class RootViewController: UIViewController {
     }()
     
     private lazy var emailInputFieldView: InputFieldView = {
-        let view = InputFieldView(
+        let view = InputFieldView<Email>(
             inputLabelText: .signupEmailLabel,
             placeholder: .signupEmailPlaceholder,
             errorLabelText: .signupInvalidEmail,
             keyboardType: .emailAddress,
             onEditingChanged: {
-                [weak self] _ in self?.configureSubviews()
-            },
-            onEditingEnded: {
                 [weak self] _ in self?.configureSubviews(fieldToValidate: .email)
-            }
+            },
         )
         return view
     }()
     
     private lazy var passwordInputFieldView: InputFieldView = {
-        let view = InputFieldView(
+        let view = InputFieldView<Password>(
             inputLabelText: .signupPasswordLabel,
             placeholder: .signupPasswordPlaceholder,
             errorLabelText: .signupInvalidPassword,
             isSecureTextEntry: true,
             onEditingChanged: {
-                [weak self] _ in self?.configureSubviews()
-            },
-            onEditingEnded: {
                 [weak self] _ in self?.configureSubviews(fieldToValidate: .password)
-            }
+            },
         )
         return view
     }()
     
     private lazy var passwordConfirmationInputFieldView: InputFieldView = {
-        let view = InputFieldView(
+        let view = InputFieldView<Password>(
             inputLabelText: .signupConfirmPasswordLabel,
             placeholder: .signupPasswordPlaceholder,
             errorLabelText: .signupNotMatchingPassword,
             isSecureTextEntry: true,
             onEditingChanged: {
-                [weak self] _ in self?.configureSubviews()
-            },
-            onEditingEnded: {
                 [weak self] _ in self?.configureSubviews(fieldToValidate: .passwordConfirmation)
-            }
+            },
         )
         return view
     }()
-
+    
     private lazy var stackView: UIStackView = {
         let stackView = UIStackView(
             arrangedSubviews: [
@@ -101,6 +92,7 @@ final class RootViewController: UIViewController {
 }
 
 // MARK: Override
+
 extension RootViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -130,50 +122,36 @@ private extension RootViewController {
         print("Tapped!")
     }
     
-    var isValidEmail: Bool {
-        let email = emailInputFieldView.text ?? ""
-        return !email.isEmpty && email.contains("@")
-    }
-    
-    var isValidPassword: Bool {
-        let text = passwordInputFieldView.text ?? ""
-        return !text.isEmpty && text.count >= 8
-    }
-    
-    var doesPasswordMatch: Bool {
-        passwordInputFieldView.text == passwordConfirmationInputFieldView.text
-    }
-    
     var canSignUp: Bool {
-        return isValidEmail && isValidPassword && doesPasswordMatch
+        let emailValue: Email? = emailInputFieldView.validateInput()
+        let passwordValue: Password? = passwordInputFieldView.validateInput()
+        let passwordConfirmationValue: Password? = passwordConfirmationInputFieldView.validateInput()
+        
+        return emailValue != nil &&
+        passwordValue != nil &&
+        passwordConfirmationValue != nil &&
+        passwordValue == passwordConfirmationValue
     }
     
     func configureSubviews(fieldToValidate: InputField? = nil) {
         
         button.isEnabled = canSignUp
+        _ = emailInputFieldView.validateInput(removeError: true)
+        _ = passwordInputFieldView.validateInput(removeError: true)
+        _ = passwordConfirmationInputFieldView.validateInput(removeError: true)
         
-        // Eagerly remove errors
-        if (isValidEmail) { emailInputFieldView.isErrorHidden = true }
-        if (isValidPassword) { passwordInputFieldView.isErrorHidden = true}
-        if (doesPasswordMatch) { passwordConfirmationInputFieldView.isErrorHidden = true }
-        
-        // Lazily show errors
+        /*
         switch fieldToValidate {
         case .email:
-            if (!isValidEmail) {
-                emailInputFieldView.isErrorHidden = false
-            }
+            _ = emailInputFieldView.validateInput(removeError: true)
         case .password:
-            if (!isValidPassword) {
-                passwordInputFieldView.isErrorHidden = false
-            }
+            _ = passwordInputFieldView.validateInput(removeError: true)
         case .passwordConfirmation:
-            if (!doesPasswordMatch) {
-                passwordConfirmationInputFieldView.isErrorHidden = false
-            }
+            _ = passwordConfirmationInputFieldView.validateInput(removeError: true)
         case .none:
             break
         }
+         */
     }
 }
 
