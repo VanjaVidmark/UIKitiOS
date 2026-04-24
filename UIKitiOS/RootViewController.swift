@@ -26,57 +26,61 @@ final class RootViewController: UIViewController {
         return button
     }()
     
-    // Email
-    private lazy var emailInputLabel = UILabel.makeInputLabel(text: String(localized: .signupEmailLabel))
-    private lazy var emailTextField = UITextField.make(
-        placeholderL10NKey: .signupEmailPlaceholder,
-        keyboardType: .emailAddress,
-        isSecureTextEntry: false,
-        onEditingChanged: { [weak self] _ in self?.configureSubviews()},
-        onEditingEnded: { [weak self] _ in self?.configureSubviews(fieldToValidate: .email)}
-    )
-    private lazy var emailErrorLabel = UILabel.makeErrorLabel()
+    private lazy var emailInputFieldView: InputFieldView = {
+        let view = InputFieldView(
+            inputLabelText: .signupEmailLabel,
+            placeholder: .signupEmailPlaceholder,
+            errorLabelText: .signupInvalidEmail,
+            keyboardType: .emailAddress,
+            onEditingChanged: {
+                [weak self] _ in self?.configureSubviews()
+            },
+            onEditingEnded: {
+                [weak self] _ in self?.configureSubviews(fieldToValidate: .email)
+            }
+        )
+        return view
+    }()
     
-    // Password
-    private lazy var passwordInputLabel = UILabel.makeInputLabel(text: String(localized: .signupPasswordLabel))
-    private lazy var passwordTextField = UITextField.make(
-        placeholderL10NKey: .signupPasswordPlaceholder,
-        onEditingChanged: { [weak self] _ in self?.configureSubviews()},
-        onEditingEnded: { [weak self] _ in self?.configureSubviews(fieldToValidate: .password)}
-    )
-
-    private lazy var passwordErrorLabel = UILabel.makeErrorLabel()
+    private lazy var passwordInputFieldView: InputFieldView = {
+        let view = InputFieldView(
+            inputLabelText: .signupPasswordLabel,
+            placeholder: .signupPasswordPlaceholder,
+            errorLabelText: .signupInvalidPassword,
+            isSecureTextEntry: true,
+            onEditingChanged: {
+                [weak self] _ in self?.configureSubviews()
+            },
+            onEditingEnded: {
+                [weak self] _ in self?.configureSubviews(fieldToValidate: .password)
+            }
+        )
+        return view
+    }()
     
-    // Password confirmation
-    private lazy var passwordConfirmationInputLabel = UILabel.makeInputLabel(text: String(localized: .signupConfirmPasswordLabel))
-    
-    private lazy var passwordConfirmationTextField = UITextField.make(
-        placeholderL10NKey: .signupPasswordPlaceholder,
-        onEditingChanged: { [weak self] _ in self?.configureSubviews()},
-        onEditingEnded: { [weak self] _ in self?.configureSubviews(fieldToValidate: .passwordConfirmation)}
-    )
-
-    private lazy var passwordConfirmationErrorLabel = UILabel.makeErrorLabel()
+    private lazy var passwordConfirmationInputFieldView: InputFieldView = {
+        let view = InputFieldView(
+            inputLabelText: .signupConfirmPasswordLabel,
+            placeholder: .signupPasswordPlaceholder,
+            errorLabelText: .signupNotMatchingPassword,
+            isSecureTextEntry: true,
+            onEditingChanged: {
+                [weak self] _ in self?.configureSubviews()
+            },
+            onEditingEnded: {
+                [weak self] _ in self?.configureSubviews(fieldToValidate: .passwordConfirmation)
+            }
+        )
+        return view
+    }()
 
     private lazy var stackView: UIStackView = {
         let stackView = UIStackView(
             arrangedSubviews: [
                 welcomeLabel,
-                makeInputStackView(
-                    inputLabel: emailInputLabel,
-                    inputTextField: emailTextField,
-                    inputErrorLabel: emailErrorLabel
-                ),
-                makeInputStackView(
-                    inputLabel: passwordInputLabel,
-                    inputTextField: passwordTextField,
-                    inputErrorLabel: passwordErrorLabel
-                ),
-                makeInputStackView(
-                    inputLabel: passwordConfirmationInputLabel,
-                    inputTextField: passwordConfirmationTextField,
-                    inputErrorLabel: passwordConfirmationErrorLabel
-                ),
+                emailInputFieldView,
+                passwordInputFieldView,
+                passwordConfirmationInputFieldView,
                 button,
                 .spacer
             ]
@@ -127,17 +131,17 @@ private extension RootViewController {
     }
     
     var isValidEmail: Bool {
-        let email = emailTextField.text ?? ""
+        let email = emailInputFieldView.text ?? ""
         return !email.isEmpty && email.contains("@")
     }
     
     var isValidPassword: Bool {
-        let text = passwordTextField.text ?? ""
+        let text = passwordInputFieldView.text ?? ""
         return !text.isEmpty && text.count >= 8
     }
     
     var doesPasswordMatch: Bool {
-        passwordTextField.text == passwordConfirmationTextField.text
+        passwordInputFieldView.text == passwordConfirmationInputFieldView.text
     }
     
     var canSignUp: Bool {
@@ -149,91 +153,27 @@ private extension RootViewController {
         button.isEnabled = canSignUp
         
         // Eagerly remove errors
-        if (isValidEmail) {emailErrorLabel.isHidden = true}
-        if (isValidPassword) { passwordErrorLabel.isHidden = true}
-        if (doesPasswordMatch) { passwordConfirmationErrorLabel.isHidden = true }
+        if (isValidEmail) { emailInputFieldView.isErrorHidden = true }
+        if (isValidPassword) { passwordInputFieldView.isErrorHidden = true}
+        if (doesPasswordMatch) { passwordConfirmationInputFieldView.isErrorHidden = true }
         
         // Lazily show errors
         switch fieldToValidate {
         case .email:
             if (!isValidEmail) {
-                emailErrorLabel.text = String(localized: LocalizedStringResource .signupInvalidEmail)
-                emailErrorLabel.isHidden = false
+                emailInputFieldView.isErrorHidden = false
             }
         case .password:
             if (!isValidPassword) {
-                passwordErrorLabel.text = String(localized: LocalizedStringResource .signupInvalidPassword)
-                passwordErrorLabel.isHidden = false
+                passwordInputFieldView.isErrorHidden = false
             }
         case .passwordConfirmation:
             if (!doesPasswordMatch) {
-                passwordConfirmationErrorLabel.text = String(localized: LocalizedStringResource .signupNotMatchingPassword)
-                passwordConfirmationErrorLabel.isHidden = false
+                passwordConfirmationInputFieldView.isErrorHidden = false
             }
         case .none:
             break
         }
-    }
-}
-
-extension UILabel {
-    static func makeInputLabel(text: String) -> UILabel {
-        let label = UILabel()
-        label.text = text
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }
-
-    static func makeErrorLabel() -> UILabel {
-        let label = UILabel()
-        label.isHidden = true
-        label.textColor = .red
-        label.numberOfLines = 2
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }
-}
-
-extension UITextField {
-    static func make(
-        placeholderL10NKey: LocalizedStringResource,
-        keyboardType: UIKeyboardType = .default,
-        isSecureTextEntry: Bool = true,
-        onEditingChanged: @escaping (String) -> Void,
-        onEditingEnded: @escaping (String) -> Void,
-    ) -> UITextField {
-        let textField = UITextField()
-        textField.keyboardType = keyboardType
-        textField.autocapitalizationType = .none
-        textField.autocorrectionType = .no
-        textField.isSecureTextEntry = isSecureTextEntry
-        textField.placeholder = String(localized: placeholderL10NKey)
-        textField.addAction(UIAction { _ in onEditingChanged(textField.text ?? "") }, for: .editingChanged)
-        textField.addAction(UIAction {_ in onEditingEnded(textField.text ?? "")}, for: .editingDidEnd)
-        textField.borderStyle = .roundedRect
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        return textField
-    }
-}
-
-extension RootViewController {
-    private func makeInputStackView(
-        inputLabel: UILabel,
-        inputTextField: UITextField,
-        inputErrorLabel: UILabel,
-    ) -> UIStackView {
-        let stackView = UIStackView(
-            arrangedSubviews: [
-                inputLabel,
-                inputTextField,
-                inputErrorLabel
-            ]
-        )
-        stackView.axis = .vertical
-        stackView.alignment = .fill
-        stackView.spacing = 10
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        return stackView
     }
 }
 
