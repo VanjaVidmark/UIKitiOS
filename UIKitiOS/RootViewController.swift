@@ -8,13 +8,16 @@
 import UIKit
 
 // MARK: RootViewController
-final class RootViewController: UIViewController {}
+final class RootViewController: UIViewController {
+    
+
+}
 
 // MARK: Override
 extension RootViewController {
+    
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		view.backgroundColor = .red
+		view.backgroundColor = .systemBackground
 	}
 }
-
