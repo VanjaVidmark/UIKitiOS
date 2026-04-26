@@ -18,7 +18,7 @@ class InputFieldView<Value: Validating>: UIView where Value.RawValue == String {
     private let inputLabel: UILabel
     private let textField: UITextField
     private let errorLabel: UILabel
-
+    
     init(
         inputLabelText: LocalizedStringResource,
         placeholder: LocalizedStringResource,
@@ -41,11 +41,11 @@ class InputFieldView<Value: Validating>: UIView where Value.RawValue == String {
         setupLayout()
         textField.addAction(UIAction { [weak self] _ in _ = self?.validateInput(showError: true) }, for: .editingDidEnd)
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     private func setupLayout() {
         let stackView = UIStackView(
             arrangedSubviews: [
@@ -69,15 +69,12 @@ class InputFieldView<Value: Validating>: UIView where Value.RawValue == String {
     }
 }
 
-extension InputFieldView where Value.RawValue == String {
+extension InputFieldView {
     
-    func validateInput(removeError: Bool = false, showError: Bool = false) -> Value? {
+    func validateInput(showError: Bool = false) -> Value? {
         do {
             let value = try Value.init(raw: textField.text ?? "")
-            
-            if removeError {
-                errorLabel.isHidden = true
-            }
+            errorLabel.isHidden = true
             return value
         } catch {
             
@@ -88,3 +85,4 @@ extension InputFieldView where Value.RawValue == String {
         }
     }
 }
+

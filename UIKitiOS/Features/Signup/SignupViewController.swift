@@ -1,5 +1,5 @@
 //
-//  RootViewController.swift
+//  SignupViewController.swift
 //  UIKitiOS
 //
 //  Created by Alexander Cyon on 2026-04-23.
@@ -7,9 +7,21 @@
 
 import UIKit
 
-// MARK: RootViewController
+// MARK: SignupViewController
 
-final class RootViewController: UIViewController {
+final class SignupViewController: UIViewController {
+    
+    private let onSignupTapped: (Email) -> Void
+    
+    init(onSignupTapped: @escaping (Email) -> Void) {
+        self.onSignupTapped = onSignupTapped
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     private lazy var welcomeLabel: UILabel = {
         let label = UILabel()
         label.text = String(localized: .signupWelcomeLabel)
@@ -33,7 +45,7 @@ final class RootViewController: UIViewController {
             errorLabelText: .signupInvalidEmail,
             keyboardType: .emailAddress,
             onEditingChanged: {
-                [weak self] _ in self?.configureSubviews(fieldToValidate: .email)
+                [weak self] _ in self?.configureSubviews()
             },
         )
         return view
@@ -46,7 +58,7 @@ final class RootViewController: UIViewController {
             errorLabelText: .signupInvalidPassword,
             isSecureTextEntry: true,
             onEditingChanged: {
-                [weak self] _ in self?.configureSubviews(fieldToValidate: .password)
+                [weak self] _ in self?.configureSubviews()
             },
         )
         return view
@@ -59,7 +71,7 @@ final class RootViewController: UIViewController {
             errorLabelText: .signupNotMatchingPassword,
             isSecureTextEntry: true,
             onEditingChanged: {
-                [weak self] _ in self?.configureSubviews(fieldToValidate: .passwordConfirmation)
+                [weak self] _ in self?.configureSubviews()
             },
         )
         return view
@@ -93,7 +105,7 @@ final class RootViewController: UIViewController {
 
 // MARK: Override
 
-extension RootViewController {
+extension SignupViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -117,48 +129,22 @@ extension RootViewController {
 }
 
 // MARK: Private
-private extension RootViewController {
+private extension SignupViewController {
     private func didTapSignupButton() {
-        print("Tapped!")
+        guard let emailValue = emailInputFieldView.validateInput() else { return }
+        onSignupTapped(emailValue)
     }
     
-    var canSignUp: Bool {
+    func configureSubviews() {
         let emailValue: Email? = emailInputFieldView.validateInput()
         let passwordValue: Password? = passwordInputFieldView.validateInput()
         let passwordConfirmationValue: Password? = passwordConfirmationInputFieldView.validateInput()
         
-        return emailValue != nil &&
+        let canSignUp = emailValue != nil &&
         passwordValue != nil &&
         passwordConfirmationValue != nil &&
         passwordValue == passwordConfirmationValue
-    }
-    
-    func configureSubviews(fieldToValidate: InputField? = nil) {
         
         button.isEnabled = canSignUp
-        _ = emailInputFieldView.validateInput(removeError: true)
-        _ = passwordInputFieldView.validateInput(removeError: true)
-        _ = passwordConfirmationInputFieldView.validateInput(removeError: true)
-        
-        /*
-        switch fieldToValidate {
-        case .email:
-            _ = emailInputFieldView.validateInput(removeError: true)
-        case .password:
-            _ = passwordInputFieldView.validateInput(removeError: true)
-        case .passwordConfirmation:
-            _ = passwordConfirmationInputFieldView.validateInput(removeError: true)
-        case .none:
-            break
-        }
-         */
     }
-}
-
-// MARK: Enum
-
-enum InputField {
-    case email
-    case password
-    case passwordConfirmation
 }
