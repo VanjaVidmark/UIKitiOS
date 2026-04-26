@@ -10,76 +10,64 @@ import XCTest
 
 final class SignupViewModelTests: XCTestCase {
 
-    // What to test? there are many combinations of invalid forms? all invalid, all empty, 1 or 3 invalid 2 of 3 invalid etc
-    
-    // MARK: onFormValidityChange
+    private var vm: SignupViewModel!
+    private var result: Bool?
 
-    func test_onFormValidityChange_allEmptyReturnsFalse() {
-        // Arrange
-        var result: Bool?
-        let vm = SignupViewModel()
-        vm.onFormValidityChanged = { isValid in result = isValid }
-        
+    override func setUp() {
+        super.setUp()
+        result = nil
+        vm = SignupViewModel()
+        vm.onFormValidityChanged = { [weak self] isValid in self?.result = isValid }
+    }
+
+    override func tearDown() {
+        vm = nil
+        super.tearDown()
+    }
+
+    // MARK: onFormValidityChanged
+
+    func test_onFormValidityChanged_allEmptyReturnsFalse() {
         // Act
         vm.emailChanged("")
-        
+
         // Assert
         XCTAssertEqual(result, false)
     }
 
-    func test_onFormValidityChange_onlyEmailValidReturnsFalse() {
-        // Arrange
-        var result: Bool?
-        let vm = SignupViewModel()
-        vm.onFormValidityChanged = { isValid in result = isValid }
-        
+    func test_onFormValidityChanged_onlyEmailValidReturnsFalse() {
         // Act
         vm.emailChanged("example@user.com")
-        
+
         // Assert
         XCTAssertEqual(result, false)
     }
-    
-    func test_onFormValidityChange_confirmationEmptyReturnsFalse() {
-        // Arrange
-        var result: Bool?
-        let vm = SignupViewModel()
-        vm.onFormValidityChanged = { isValid in result = isValid }
-        
+
+    func test_onFormValidityChanged_confirmationEmptyReturnsFalse() {
         // Act
         vm.emailChanged("example@user.com")
         vm.passwordChanged("password")
-        
+
         // Assert
         XCTAssertEqual(result, false)
     }
-    
-    func test_onFormValidityChange_passwordsNotMatchingReturnsFalse() {
-        // Arrange
-        var result: Bool?
-        let vm = SignupViewModel()
-        vm.onFormValidityChanged = { isValid in result = isValid }
-        
+
+    func test_onFormValidityChanged_passwordsNotMatchingReturnsFalse() {
         // Act
         vm.emailChanged("example@user.com")
         vm.passwordChanged("password")
         vm.passwordConfirmationChanged("anotherpassword")
-        
+
         // Assert
         XCTAssertEqual(result, false)
     }
-    
-    func test_onFormValidityChange_allValidReturnsTrue() {
-        // Arrange
-        var result: Bool?
-        let vm = SignupViewModel()
-        vm.onFormValidityChanged = { isValid in result = isValid }
-        
+
+    func test_onFormValidityChanged_allValidReturnsTrue() {
         // Act
         vm.emailChanged("example@user.com")
         vm.passwordChanged("password")
         vm.passwordConfirmationChanged("password")
-        
+
         // Assert
         XCTAssertEqual(result, true)
     }

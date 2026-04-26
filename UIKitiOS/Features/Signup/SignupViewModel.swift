@@ -10,7 +10,7 @@ final class SignupViewModel {
     private var password = ""
     private var passwordConfirmation = ""
 
-    var onFormValidityChanged: ((Bool) -> Void)?  // has tests 
+    var onFormValidityChanged: ((Bool) -> Void)?
     var onEmailValidityChanged: ((Bool) -> Void)?
     var onPasswordValidityChanged: ((Bool) -> Void)?
     var onConfirmationValidityChanged: ((Bool) -> Void)?
