@@ -68,7 +68,7 @@ final class SignupViewController: UIViewController {
         let view = InputFieldView<Password>(
             inputLabelText: .signupConfirmPasswordLabel,
             placeholder: .signupPasswordPlaceholder,
-            errorLabelText: .signupNotMatchingPassword,
+            errorLabelText: .signupInvalidPassword,
             isSecureTextEntry: true,
             onEditingChanged: {
                 [weak self] _ in self?.configureSubviews()
@@ -138,7 +138,10 @@ private extension SignupViewController {
     }
     
     func configureSubviews() {
-        guard let result = validateInputFields() else { return }
+        guard validateInputFields() != nil else {
+            button.isEnabled = false
+            return
+        }
         button.isEnabled = true
     }
     
@@ -146,12 +149,16 @@ private extension SignupViewController {
         guard
             let email = emailInputFieldView.validateInput(),
             let password = passwordInputFieldView.validateInput(),
-            let confirmation = passwordConfirmationInputFieldView.validateInput(),
-            password == confirmation
+            let confirmation = passwordConfirmationInputFieldView.validateInput()
         else {
             return nil
         }
-        
+
+        guard password == confirmation else {
+            passwordConfirmationInputFieldView.showError(String(localized: .signupNotMatchingPassword))
+            return nil
+        }
+
         return (email, password, confirmation)
     }
 }

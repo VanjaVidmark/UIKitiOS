@@ -63,7 +63,12 @@ class InputFieldView<Value: Validating>: UIView where Value.RawValue == String {
 }
 
 extension InputFieldView {
-    
+
+    func showError(_ message: String) {
+        errorLabel.text = message
+        errorLabel.isHidden = false
+    }
+
     func validateInput(showError: Bool = false) -> Value? {
         do {
             let value = try Value.init(raw: textField.text ?? "")

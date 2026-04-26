@@ -76,7 +76,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Passwords does not match"
+            "value" : "Passwords do not match"
           }
         }
       }
