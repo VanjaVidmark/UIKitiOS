@@ -5,7 +5,6 @@
 //  Created by Vanja Vidmark on 2026-04-26.
 //
 
-
 final class SignupViewModel {
     private var email = ""
     private var password = ""
@@ -38,7 +37,5 @@ final class SignupViewModel {
     func passwordConfirmationChanged(_ text: String) {
         passwordConfirmation = text
         onFormValidityChanged?(isFormValid)
-    }
-    
-    
+    } 
 }
