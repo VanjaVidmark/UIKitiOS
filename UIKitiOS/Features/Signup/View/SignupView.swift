@@ -10,8 +10,11 @@ import UIKit
 final class SignupView: UIView {
 
     var onEmailChanged: ((String) -> Void)?
+    var onEmailEditingEnded: (() -> Void)?
     var onPasswordChanged: ((String) -> Void)?
+    var onPasswordEditingEnded: (() -> Void)?
     var onConfirmationChanged: ((String) -> Void)?
+    var onConfirmationEditingEnded: (() -> Void)?
     var onSignupTapped: (() -> Void)?
 
     private lazy var welcomeLabel: UILabel = {
@@ -22,33 +25,39 @@ final class SignupView: UIView {
     }()
 
     private lazy var emailInputFieldView: InputFieldView = {
-        InputFieldView<Email>(
+        let view = InputFieldView<Email>(
             inputLabelText: .signupEmailLabel,
             placeholder: .signupEmailPlaceholder,
             errorLabelText: .signupInvalidEmail,
             keyboardType: .emailAddress,
             onEditingChanged: { [weak self] text in self?.onEmailChanged?(text) }
         )
+        view.onEditingEnded = { [weak self] in self?.onEmailEditingEnded?() }
+        return view
     }()
 
     private lazy var passwordInputFieldView: InputFieldView = {
-        InputFieldView<Password>(
+        let view = InputFieldView<Password>(
             inputLabelText: .signupPasswordLabel,
             placeholder: .signupPasswordPlaceholder,
             errorLabelText: .signupInvalidPassword,
             isSecureTextEntry: true,
             onEditingChanged: { [weak self] text in self?.onPasswordChanged?(text) }
         )
+        view.onEditingEnded = { [weak self] in self?.onPasswordEditingEnded?() }
+        return view
     }()
 
     private lazy var passwordConfirmationInputFieldView: InputFieldView = {
-        InputFieldView<Password>(
+        let view = InputFieldView<Password>(
             inputLabelText: .signupConfirmPasswordLabel,
             placeholder: .signupPasswordPlaceholder,
             errorLabelText: .signupInvalidPassword,
             isSecureTextEntry: true,
             onEditingChanged: { [weak self] text in self?.onConfirmationChanged?(text) }
         )
+        view.onEditingEnded = { [weak self] in self?.onConfirmationEditingEnded?() }
+        return view
     }()
 
     private lazy var button: UIButton = {
@@ -95,14 +104,24 @@ final class SignupView: UIView {
     func setButtonEnabled(_ enabled: Bool) {
         button.isEnabled = enabled
     }
-}
 
-// MARK: Private
+    func setEmailError(_ message: String?) {
+        if let message { emailInputFieldView.showError(message) } else { emailInputFieldView.hideError() }
+    }
+
+    func setPasswordError(_ message: String?) {
+        if let message { passwordInputFieldView.showError(message) } else { passwordInputFieldView.hideError() }
+    }
+
+    func setConfirmationError(_ message: String?) {
+        if let message { passwordConfirmationInputFieldView.showError(message) } else { passwordConfirmationInputFieldView.hideError() }
+    }
+}
 
 private extension SignupView {
     func setupLayout() {
         addSubview(scrollView)
-        
+
         NSLayoutConstraint.activate([
             scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),

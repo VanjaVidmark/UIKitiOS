@@ -11,7 +11,9 @@ class InputFieldView<Value: Validating>: UIView where Value.RawValue == String {
     private let inputLabel: UILabel
     private let textField: UITextField
     private let errorLabel: UILabel
-    
+
+    var onEditingEnded: (() -> Void)?
+
     init(
         inputLabelText: LocalizedStringResource,
         placeholder: LocalizedStringResource,
@@ -28,17 +30,17 @@ class InputFieldView<Value: Validating>: UIView where Value.RawValue == String {
             onEditingChanged: onEditingChanged,
         )
         errorLabel = UILabel.makeErrorLabel(text: String(localized: errorLabelText))
-        
+
         super.init(frame: .zero)
-        
+
         setupLayout()
-        textField.addAction(UIAction { _ in print("Editing did end")}, for: .editingDidEnd)
+        textField.addAction(UIAction { [weak self] _ in self?.onEditingEnded?() }, for: .editingDidEnd)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     private func setupLayout() {
         let stackView = UIStackView(
             arrangedSubviews: [
@@ -52,7 +54,7 @@ class InputFieldView<Value: Validating>: UIView where Value.RawValue == String {
         stackView.spacing = 10
         stackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stackView)
-        
+
         NSLayoutConstraint.activate([
             stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
@@ -68,5 +70,8 @@ extension InputFieldView {
         errorLabel.text = message
         errorLabel.isHidden = false
     }
-    
+
+    func hideError() {
+        errorLabel.isHidden = true
+    }
 }
