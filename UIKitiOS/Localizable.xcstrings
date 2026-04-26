@@ -65,7 +65,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Invalid password, it must contain at lest 8 characters and a number"
+            "value" : "Invalid password, it must contain at lest 8 characters"
           }
         }
       }

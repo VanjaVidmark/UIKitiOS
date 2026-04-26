@@ -11,7 +11,7 @@ extension UITextField {
     static func make(
         placeholderL10NKey: LocalizedStringResource,
         keyboardType: UIKeyboardType = .default,
-        isSecureTextEntry: Bool = true,
+        isSecureTextEntry: Bool = false,
         onEditingChanged: @escaping (String) -> Void,
     ) -> UITextField {
         let textField = UITextField()

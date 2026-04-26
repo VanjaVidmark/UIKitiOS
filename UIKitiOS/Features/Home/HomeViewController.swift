@@ -7,7 +7,7 @@
 
 import UIKit
 
-class HomeViewController: UIViewController {
+final class HomeViewController: UIViewController {
     
     private let email: Email
     
@@ -36,7 +36,7 @@ extension HomeViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.addSubview(welcomeLabel)
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         
         NSLayoutConstraint.activate([
                 welcomeLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),

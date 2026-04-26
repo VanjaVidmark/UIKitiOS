@@ -7,13 +7,6 @@
 
 import UIKit
 
-protocol Validating {
-    associatedtype Error: Swift.Error
-    associatedtype RawValue
-    
-    init(raw: RawValue) throws(Error)
-}
-
 class InputFieldView<Value: Validating>: UIView where Value.RawValue == String {
     private let inputLabel: UILabel
     private let textField: UITextField

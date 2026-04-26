@@ -7,7 +7,7 @@
 
 import UIKit
 
-class RootViewController: UINavigationController {
+final class RootViewController: UINavigationController {
     
     private lazy var signupViewController = SignupViewController(onSignupTapped: onSignupTapped)
 

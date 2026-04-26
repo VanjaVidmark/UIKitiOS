@@ -108,7 +108,7 @@ final class SignupViewController: UIViewController {
 extension SignupViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         
         scrollView.addSubview(stackView)
         view.addSubview(scrollView)
@@ -129,22 +129,33 @@ extension SignupViewController {
 }
 
 // MARK: Private
+
 private extension SignupViewController {
-    private func didTapSignupButton() {
-        guard let emailValue = emailInputFieldView.validateInput() else { return }
-        onSignupTapped(emailValue)
+    
+    func didTapSignupButton() {
+        guard let result =  validateInputFields() else { return }
+        
+        onSignupTapped(result.0)
     }
     
     func configureSubviews() {
-        let emailValue: Email? = emailInputFieldView.validateInput()
-        let passwordValue: Password? = passwordInputFieldView.validateInput()
-        let passwordConfirmationValue: Password? = passwordConfirmationInputFieldView.validateInput()
         
-        let canSignUp = emailValue != nil &&
-        passwordValue != nil &&
-        passwordConfirmationValue != nil &&
-        passwordValue == passwordConfirmationValue
+        guard let result =  validateInputFields() else { return }
         
+        let canSignUp = result.1 == result.2
         button.isEnabled = canSignUp
+    }
+    
+    func validateInputFields() -> (Email, Password, Password)? {
+        guard
+            let email = emailInputFieldView.validateInput(),
+            let password = passwordInputFieldView.validateInput(),
+            let confirmation = passwordConfirmationInputFieldView.validateInput(),
+            password == confirmation
+        else {
+            return nil
+        }
+        
+        return (email, password, confirmation)
     }
 }
