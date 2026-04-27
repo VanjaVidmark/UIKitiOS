@@ -10,21 +10,21 @@ final class SignupViewModel {
     private var password = ""
     private var passwordConfirmation = ""
 
-    var onFormValidityChanged: ((Bool) -> Void)?
-    var onEmailValidityChanged: ((Bool) -> Void)?
-    var onPasswordValidityChanged: ((Bool) -> Void)?
-    var onConfirmationValidityChanged: ((Bool) -> Void)?
-    var onConfirmationMismatch: (() -> Void)?
+    var onFormValidityChanged: OnValidityChanged?
+    var onEmailValidityChanged: OnValidityChanged?
+    var onPasswordValidityChanged: OnValidityChanged?
+    var onConfirmationValidityChanged: OnValidityChanged?
+    var onConfirmationMismatch: OnConfirmationMismatch?
 
-    private var isEmailValid: Bool { (try? Email(raw: email)) != nil }
-    private var isPasswordValid: Bool { (try? Password(raw: password)) != nil }
-    private var isConfirmationValid: Bool { (try? Password(raw: passwordConfirmation)) != nil }
-    private var passwordsMatch: Bool { password == passwordConfirmation }
+}
 
-    private var isFormValid: Bool {
-        isEmailValid && isPasswordValid && isConfirmationValid && passwordsMatch
-    }
+// MARK: - Internal
 
+extension SignupViewModel {
+    
+    typealias OnValidityChanged = (Bool) -> Void
+    typealias OnConfirmationMismatch = () -> Void
+    
     func emailChanged(_ text: String) {
         email = text
         if isEmailValid { onEmailValidityChanged?(true) }
@@ -62,4 +62,19 @@ final class SignupViewModel {
             onConfirmationValidityChanged?(true)
         }
     }
+}
+
+// MARK: Private
+
+extension SignupViewModel {
+    
+    private var isEmailValid: Bool { (try? Email(raw: email)) != nil }
+    private var isPasswordValid: Bool { (try? Password(raw: password)) != nil }
+    private var isConfirmationValid: Bool { (try? Password(raw: passwordConfirmation)) != nil }
+    private var passwordsMatch: Bool { password == passwordConfirmation }
+    
+    private var isFormValid: Bool {
+        isEmailValid && isPasswordValid && isConfirmationValid && passwordsMatch
+    }
+    
 }

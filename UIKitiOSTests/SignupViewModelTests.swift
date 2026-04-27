@@ -11,13 +11,13 @@ import XCTest
 final class SignupViewModelTests: XCTestCase {
 
     private var vm: SignupViewModel!
-    private var result: Bool?
+    private var isFormValid: Bool?
 
     override func setUp() {
         super.setUp()
-        result = nil
+        isFormValid = nil
         vm = SignupViewModel()
-        vm.onFormValidityChanged = { [weak self] isValid in self?.result = isValid }
+        vm.onFormValidityChanged = { [weak self] isValid in self?.isFormValid = isValid }
     }
 
     override func tearDown() {
@@ -32,7 +32,7 @@ final class SignupViewModelTests: XCTestCase {
         vm.emailChanged("")
 
         // Assert
-        XCTAssertEqual(result, false)
+        XCTAssertEqual(isFormValid, false)
     }
 
     func test_onFormValidityChanged_onlyEmailValidReturnsFalse() {
@@ -40,7 +40,7 @@ final class SignupViewModelTests: XCTestCase {
         vm.emailChanged("example@user.com")
 
         // Assert
-        XCTAssertEqual(result, false)
+        XCTAssertEqual(isFormValid, false)
     }
 
     func test_onFormValidityChanged_confirmationEmptyReturnsFalse() {
@@ -49,7 +49,7 @@ final class SignupViewModelTests: XCTestCase {
         vm.passwordChanged("password")
 
         // Assert
-        XCTAssertEqual(result, false)
+        XCTAssertEqual(isFormValid, false)
     }
 
     func test_onFormValidityChanged_passwordsNotMatchingReturnsFalse() {
@@ -59,7 +59,7 @@ final class SignupViewModelTests: XCTestCase {
         vm.passwordConfirmationChanged("anotherpassword")
 
         // Assert
-        XCTAssertEqual(result, false)
+        XCTAssertEqual(isFormValid, false)
     }
 
     func test_onFormValidityChanged_allValidReturnsTrue() {
@@ -69,6 +69,6 @@ final class SignupViewModelTests: XCTestCase {
         vm.passwordConfirmationChanged("password")
 
         // Assert
-        XCTAssertEqual(result, true)
+        XCTAssertEqual(isFormValid, true)
     }
 }
