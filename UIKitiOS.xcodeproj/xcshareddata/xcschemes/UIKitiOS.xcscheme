@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "2610"
+   LastUpgradeVersion = "2640"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -35,7 +35,7 @@
             parallelizable = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "455B018E2F9E0934008DC625"
+               BlueprintIdentifier = "455B020C2F9E8574008DC625"
                BuildableName = "UIKitiOSTests.xctest"
                BlueprintName = "UIKitiOSTests"
                ReferencedContainer = "container:UIKitiOS.xcodeproj">

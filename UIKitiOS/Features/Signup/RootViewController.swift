@@ -1,0 +1,146 @@
+//
+//  RootViewController.swift
+//  UIKitiOS
+//
+//  Created by Alexander Cyon on 2026-04-23.
+//
+
+import UIKit
+import Combine
+
+final class RootViewController: UIViewController {
+    
+    // eager var
+    private let signupViewModel: SignupViewModel
+    
+    // can be lazy var, we can provide vm publishers
+    private let signupView: SignupView
+    
+    private lazy var cancellables = Set<AnyCancellable>()
+    
+    init() {
+        self.signupView = SignupView()
+        
+        let vm = SignupViewModel(
+            onEmailChangedPublisher: self.signupView.onEmailChangedPublisher,
+            onPasswordChangedPublisher: self.signupView.onPasswordChangedPublisher,
+            onConfirmationChangedPublisher: self.signupView.onConfirmationChangedPublisher,
+            onButtonTap: self.signupView.onButtonTapPublisher
+        )
+        
+        self.signupViewModel = vm
+        super.init(nibName: nil, bundle: nil)
+        
+        vm.emailPublisher
+            .map({emailResult in emailResult.failure})
+            .sink(receiveValue: { [weak self] localizedError in self?.signupView.setEmailError(localizedError) })
+            .store(in: &cancellables)
+        
+        vm.invalidPasswordMessagePublisher
+            .sink(receiveValue: { [weak self] localizedError in self?.signupView.setPasswordError(localizedError) })
+            .store(in: &cancellables)
+        
+        vm.invalidConfirmationMessagePublisher
+            .sink(receiveValue: { [weak self] localizedError in self?.signupView.setConfirmationError(localizedError) })
+            .store(in: &cancellables)
+        
+        vm.passwordDiscrepancyMessagePublisher
+            .sink(receiveValue: { [weak self] localizedError in self?.signupView.setConfirmationError(localizedError) })
+            .store(in: &cancellables)
+        
+        vm.isFormValidPublisher
+            .sink(receiveValue: { [weak self] isFormValid in self?.signupView.setButtonEnabled(isFormValid) })
+            .store(in: &cancellables)
+        
+            
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+}
+
+// MARK: Override
+
+extension RootViewController {
+
+    override func loadView() {
+        view = signupView
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .systemBackground
+        // wireView()
+        // wireViewModel()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        startListeningToInput()
+        super.viewWillAppear(animated)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        stopListeningToInput()
+        super.viewWillDisappear(animated)
+    }
+}
+
+// MARK: Private
+
+private extension RootViewController {
+    
+    func startListeningToInput() {
+        
+        
+    }
+    
+    func stopListeningToInput() {
+        
+    }
+
+    func wireView() {
+        /*
+        signupView.onEmailChanged = { [weak self] text in self?.signupViewModel.emailChanged(text) }
+         
+        signupView.onEmailEditingEnded = { [weak self] in self?.signupViewModel.emailEditingEnded() }
+
+        signupView.onPasswordChanged = { [weak self] text in self?.signupViewModel.passwordChanged(text) }
+        signupView.onPasswordEditingEnded = { [weak self] in self?.signupViewModel.passwordEditingEnded() }
+
+        signupView.onConfirmationChanged = { [weak self] text in self?.signupViewModel.passwordConfirmationChanged(text) }
+        signupView.onConfirmationEditingEnded = { [weak self] in self?.signupViewModel.confirmationEditingEnded() }
+
+        signupView.onSignupTapped = { print("signup tapped") }
+         */
+    }
+
+    func wireViewModel() {
+        /*
+        signupViewModel.onFormValidityChanged = { [weak self] isValid in
+            self?.signupView.setButtonEnabled(isValid)
+        }
+        signupViewModel.onEmailValidityChanged = { [weak self] isValid in
+            self?.signupView.setEmailError(isValid ? nil : String(localized: .signupInvalidEmail))
+        }
+        signupViewModel.onPasswordValidityChanged = { [weak self] isValid in
+            self?.signupView.setPasswordError(isValid ? nil : String(localized: .signupInvalidPassword))
+        }
+        signupViewModel.onConfirmationValidityChanged = { [weak self] isValid in
+            self?.signupView.setConfirmationError(isValid ? nil : String(localized: .signupInvalidPassword))
+        }
+        signupViewModel.onConfirmationMismatch = { [weak self] in
+            self?.signupView.setConfirmationError(String(localized: .signupNotMatchingPassword))
+        }*/
+    }
+}
+
+extension Result {
+    var failure: Failure? {
+        switch self {
+            case .success: return nil
+            case .failure(let failure): return failure
+        }
+    }
+}

@@ -7,9 +7,16 @@
 
 struct Password: Validating, Equatable {
     let value: String
+    static let minimumLength: Int = {
+        #if DEBUG
+        1
+        #else
+        8
+        #endif
+    }()
     
     init(raw: String) throws(Error) {
-        guard !raw.isEmpty && raw.count >= 8 else { throw Error.invalidPassword }
+        guard !raw.isEmpty && raw.count >= Self.minimumLength else { throw Error.invalidPassword }
         self.value = raw
     }
     
