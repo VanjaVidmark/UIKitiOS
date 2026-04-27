@@ -6,13 +6,14 @@
 //
 
 import UIKit
+import Combine
 
 extension UITextField {
     static func make(
         placeholderL10NKey: LocalizedStringResource,
         keyboardType: UIKeyboardType = .default,
         isSecureTextEntry: Bool = false,
-        onEditingChanged: @escaping (String) -> Void,
+        onEditingChangedSubject: any Subject<String, Never>,
     ) -> UITextField {
         let textField = UITextField()
         textField.keyboardType = keyboardType
@@ -20,7 +21,7 @@ extension UITextField {
         textField.autocorrectionType = .no
         textField.isSecureTextEntry = isSecureTextEntry
         textField.placeholder = String(localized: placeholderL10NKey)
-        textField.addAction(UIAction { _ in onEditingChanged(textField.text ?? "") }, for: .editingChanged)
+        textField.addAction(UIAction { _ in onEditingChangedSubject.send(textField.text ?? "") }, for: .editingChanged)
         textField.borderStyle = .roundedRect
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField

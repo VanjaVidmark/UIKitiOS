@@ -6,12 +6,41 @@
 //
 
 import UIKit
+import Combine
 
 final class RootViewController: UIViewController {
-
-    private let signupViewModel = SignupViewModel()
-    private let signupView = SignupView()
-
+    
+    // eager var
+    private let signupViewModel: SignupViewModel
+    
+    // can be lazy var, we can provide vm publishers
+    private let signupView: SignupView
+    
+    private lazy var cancellables = Set<AnyCancellable>()
+    
+    init() {
+        self.signupView = SignupView()
+        
+        let vm = SignupViewModel(
+            onEmailChangedPublisher: self.signupView.onEmailChangedPublisher,
+            onPasswordChangedPublisher: self.signupView.onPasswordChangedPublisher,
+            onConfirmationChangedPublisher: self.signupView.onConfirmationChangedPublisher,
+        )
+        
+        self.signupViewModel = vm
+        super.init(nibName: nil, bundle: nil)
+        
+        let subscription = vm.emailValidityPublisher.sink { [weak self] isEmailValid in
+            self?.signupView.setEmailError(isEmailValid ? nil : String(localized: .signupInvalidEmail))
+        }
+        cancellables.insert(subscription)
+            
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
 }
 
 // MARK: Override
@@ -25,17 +54,38 @@ extension RootViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        wireView()
-        wireViewModel()
+        // wireView()
+        // wireViewModel()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        startListeningToInput()
+        super.viewWillAppear(animated)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        stopListeningToInput()
+        super.viewWillDisappear(animated)
     }
 }
 
 // MARK: Private
 
 private extension RootViewController {
+    
+    func startListeningToInput() {
+        
+        
+    }
+    
+    func stopListeningToInput() {
+        
+    }
 
     func wireView() {
+        /*
         signupView.onEmailChanged = { [weak self] text in self?.signupViewModel.emailChanged(text) }
+         
         signupView.onEmailEditingEnded = { [weak self] in self?.signupViewModel.emailEditingEnded() }
 
         signupView.onPasswordChanged = { [weak self] text in self?.signupViewModel.passwordChanged(text) }
@@ -45,9 +95,11 @@ private extension RootViewController {
         signupView.onConfirmationEditingEnded = { [weak self] in self?.signupViewModel.confirmationEditingEnded() }
 
         signupView.onSignupTapped = { print("signup tapped") }
+         */
     }
 
     func wireViewModel() {
+        /*
         signupViewModel.onFormValidityChanged = { [weak self] isValid in
             self?.signupView.setButtonEnabled(isValid)
         }
@@ -62,6 +114,6 @@ private extension RootViewController {
         }
         signupViewModel.onConfirmationMismatch = { [weak self] in
             self?.signupView.setConfirmationError(String(localized: .signupNotMatchingPassword))
-        }
+        }*/
     }
 }

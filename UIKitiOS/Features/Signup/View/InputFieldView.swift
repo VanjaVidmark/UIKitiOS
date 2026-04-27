@@ -6,13 +6,14 @@
 //
 
 import UIKit
+import Combine
 
 class InputFieldView<Value: Validating>: UIView where Value.RawValue == String {
     private let inputLabel: UILabel
     private let textField: UITextField
     private let errorLabel: UILabel
-
-    var onEditingEnded: (() -> Void)?
+    private let onEditingChangedSubject: PassthroughSubject<String, Never>
+    private let onEditingEndedSubject = PassthroughSubject<Void, Never>()
 
     init(
         inputLabelText: LocalizedStringResource,
@@ -20,21 +21,22 @@ class InputFieldView<Value: Validating>: UIView where Value.RawValue == String {
         errorLabelText: LocalizedStringResource,
         keyboardType: UIKeyboardType = .default,
         isSecureTextEntry: Bool = false,
-        onEditingChanged: @escaping (String) -> Void,
     ) {
+        let onEditingChangedSubject = PassthroughSubject<String, Never>()
         inputLabel = UILabel.makeInputLabel(text: String(localized: inputLabelText))
         textField = UITextField.make(
             placeholderL10NKey: placeholder,
             keyboardType: keyboardType,
             isSecureTextEntry: isSecureTextEntry,
-            onEditingChanged: onEditingChanged,
+            onEditingChangedSubject: onEditingChangedSubject,
         )
         errorLabel = UILabel.makeErrorLabel(text: String(localized: errorLabelText))
-
+        self.onEditingChangedSubject = onEditingChangedSubject
+        
         super.init(frame: .zero)
 
         setupLayout()
-        textField.addAction(UIAction { [weak self] _ in self?.onEditingEnded?() }, for: .editingDidEnd)
+        textField.addAction(UIAction { [weak self] _ in self?.onEditingEndedSubject.send() }, for: .editingDidEnd)
     }
 
     required init?(coder: NSCoder) {
@@ -65,6 +67,14 @@ class InputFieldView<Value: Validating>: UIView where Value.RawValue == String {
 }
 
 extension InputFieldView {
+    
+    var onEditingChangedPublisher: AnyPublisher<String, Never> {
+        onEditingChangedSubject.eraseToAnyPublisher()
+    }
+    
+    var onEditingEndedPublisher: AnyPublisher<Void, Never> {
+        onEditingEndedSubject.eraseToAnyPublisher()
+    }
 
     func showError(_ message: String) {
         errorLabel.text = message

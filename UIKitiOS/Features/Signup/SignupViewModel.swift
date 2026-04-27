@@ -5,26 +5,57 @@
 //  Created by Vanja Vidmark on 2026-04-26.
 //
 
-final class SignupViewModel {
-    private var email = ""
-    private var password = ""
-    private var passwordConfirmation = ""
+import Combine
 
-    var onFormValidityChanged: OnValidityChanged?
-    var onEmailValidityChanged: OnValidityChanged?
-    var onPasswordValidityChanged: OnValidityChanged?
-    var onConfirmationValidityChanged: OnValidityChanged?
-    var onConfirmationMismatch: OnConfirmationMismatch?
+final class SignupViewModel {
+    private var email: String
+    private var password: String
+    private var passwordConfirmation: String
+
+    private let emailValiditySubject = PassthroughSubject<Bool, Never>()
+    private let passwordValiditySubject = PassthroughSubject<Bool, Never>()
+    private let confirmationValiditySubject = PassthroughSubject<Bool, Never>()
+    
+    private let onFormValidityChangedSubject = PassthroughSubject<Bool, Never>()
+    
+    private let onConfirmationMismatchSubject = PassthroughSubject<Void, Never>()
+    
+    private let onEmailChangedPublisher: any Publisher<String, Never>
+    private let onPasswordChangedPublisher: any Publisher<String, Never>
+    private let onConfirmationChangedPublisher: any Publisher<String, Never>
+    
+    init(
+        email: String = "",
+        password: String = "",
+        passwordConfirmation: String = "",
+        onEmailChangedPublisher: any Publisher<String, Never>,
+        onPasswordChangedPublisher: any Publisher<String, Never>,
+        onConfirmationChangedPublisher: any Publisher<String, Never>
+    ) {
+        self.onEmailChangedPublisher = onEmailChangedPublisher
+        self.onPasswordChangedPublisher = onPasswordChangedPublisher
+        self.onConfirmationChangedPublisher = onConfirmationChangedPublisher
+        self.email = email
+        self.password = password
+        self.passwordConfirmation = passwordConfirmation
+    }
 
 }
 
 // MARK: - Internal
 
 extension SignupViewModel {
+    var emailValidityPublisher: AnyPublisher<Bool, Never> {
+        emailValiditySubject.eraseToAnyPublisher()
+    }
+    var passwordValidityPublisher: AnyPublisher<Bool, Never> {
+        passwordValiditySubject.eraseToAnyPublisher()
+    }
+    var confirmationValidityPublisher: AnyPublisher<Bool, Never> {
+        confirmationValiditySubject.eraseToAnyPublisher()
+    }
     
-    typealias OnValidityChanged = (Bool) -> Void
-    typealias OnConfirmationMismatch = () -> Void
-    
+    /*
     func emailChanged(_ text: String) {
         email = text
         if isEmailValid { onEmailValidityChanged?(true) }
@@ -62,6 +93,7 @@ extension SignupViewModel {
             onConfirmationValidityChanged?(true)
         }
     }
+     */
 }
 
 // MARK: Private

@@ -6,16 +6,11 @@
 //
 
 import UIKit
+import Combine
 
 final class SignupView: UIView {
-
-    var onEmailChanged: ((String) -> Void)?
-    var onEmailEditingEnded: (() -> Void)?
-    var onPasswordChanged: ((String) -> Void)?
-    var onPasswordEditingEnded: (() -> Void)?
-    var onConfirmationChanged: ((String) -> Void)?
-    var onConfirmationEditingEnded: (() -> Void)?
-    var onSignupTapped: (() -> Void)?
+    
+    private let onButtonTapSubject = PassthroughSubject<Void, Never>()
 
     private lazy var welcomeLabel: UILabel = {
         let label = UILabel()
@@ -30,9 +25,7 @@ final class SignupView: UIView {
             placeholder: .signupEmailPlaceholder,
             errorLabelText: .signupInvalidEmail,
             keyboardType: .emailAddress,
-            onEditingChanged: { [weak self] text in self?.onEmailChanged?(text) }
         )
-        view.onEditingEnded = { [weak self] in self?.onEmailEditingEnded?() }
         return view
     }()
 
@@ -42,9 +35,7 @@ final class SignupView: UIView {
             placeholder: .signupPasswordPlaceholder,
             errorLabelText: .signupInvalidPassword,
             isSecureTextEntry: true,
-            onEditingChanged: { [weak self] text in self?.onPasswordChanged?(text) }
         )
-        view.onEditingEnded = { [weak self] in self?.onPasswordEditingEnded?() }
         return view
     }()
 
@@ -54,9 +45,7 @@ final class SignupView: UIView {
             placeholder: .signupPasswordPlaceholder,
             errorLabelText: .signupInvalidPassword,
             isSecureTextEntry: true,
-            onEditingChanged: { [weak self] text in self?.onConfirmationChanged?(text) }
         )
-        view.onEditingEnded = { [weak self] in self?.onConfirmationEditingEnded?() }
         return view
     }()
 
@@ -65,7 +54,7 @@ final class SignupView: UIView {
         button.setTitle(String(localized: .signupButtonTitle), for: .normal)
         button.isEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.addAction(UIAction { [weak self] _ in self?.onSignupTapped?() }, for: .touchUpInside)
+        button.addAction(UIAction { [weak self] _ in self?.onButtonTapSubject.send() }, for: .touchUpInside)
         return button
     }()
 
@@ -100,7 +89,34 @@ final class SignupView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+}
 
+// MARK:
+
+extension SignupView {
+    
+    var onEmailChangedPublisher: AnyPublisher<String, Never> {
+        emailInputFieldView.onEditingChangedPublisher
+    }
+    var onEmailEditingEndedPublisher: AnyPublisher<Void, Never> {
+        emailInputFieldView.onEditingEndedPublisher
+    }
+    var onPasswordChangedPublisher: AnyPublisher<String, Never> {
+        passwordInputFieldView.onEditingChangedPublisher
+    }
+    var onPasswordEditingEndedPublisher: AnyPublisher<Void, Never> {
+        passwordInputFieldView.onEditingEndedPublisher
+    }
+    var onConfirmationChangedPublisher: AnyPublisher<String, Never> {
+        passwordConfirmationInputFieldView.onEditingChangedPublisher
+    }
+    var onConfirmationEditingEndedPublisher: AnyPublisher<Void, Never> {
+        passwordConfirmationInputFieldView.onEditingEndedPublisher
+    }
+    var onButtonTapPublisher: AnyPublisher<Void, Never> {
+        onButtonTapSubject.eraseToAnyPublisher()
+    }
+    
     func setButtonEnabled(_ enabled: Bool) {
         button.isEnabled = enabled
     }
@@ -118,7 +134,10 @@ final class SignupView: UIView {
     }
 }
 
+// MARK: Private
+
 private extension SignupView {
+    
     func setupLayout() {
         addSubview(scrollView)
 
