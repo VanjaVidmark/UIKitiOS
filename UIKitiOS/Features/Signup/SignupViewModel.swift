@@ -52,7 +52,7 @@ final class SignupViewModel {
         self.onButtonTapPublisher
             .combineLatest(validUserPublisher.filterOutNil())
             .map { _, user in user }
-            .sink(receiveValue: {user in print(user)})
+            .sink(receiveValue: {user in log.debug("Shall login with \(user)")})
             .store(in: &cancellables)
     }
 
