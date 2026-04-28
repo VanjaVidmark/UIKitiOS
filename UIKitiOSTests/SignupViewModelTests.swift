@@ -26,7 +26,7 @@ func sut(
 final class SignupViewModelTests: XCTestCase {
 
     // MARK: invalidEmailMessagePublisher
-    
+
     func test_invalidEmailMessagePublisher_whenInvalidEmail_thenEmits() async {
         // Arrange
         let emailSubject = PassthroughSubject<String, Never>()
@@ -47,5 +47,53 @@ final class SignupViewModelTests: XCTestCase {
         await fulfillment(of: [expectation], timeout: 0.1)
         XCTAssertEqual(receivedValue, String(localized: .signupInvalidEmail))
     }
+
+    func test_invalidEmailMessagePublisher_whenEmptyEmail_thenEmits() async {
+        // Arrange
+        let emailSubject = PassthroughSubject<String, Never>()
+        let vm = sut(onEmailChangedPublisher: emailSubject)
+        var receivedValue: String?
+        let expectation = XCTestExpectation(description: "Receive value")
+        var cancellables: Set<AnyCancellable> = []
+
+        vm.invalidEmailMessagePublisher.sink { value in
+            receivedValue = value
+            expectation.fulfill()
+        }.store(in: &cancellables)
+
+        // Act
+        emailSubject.send("")
+
+        // Assert
+        await fulfillment(of: [expectation], timeout: 0.1)
+        XCTAssertEqual(receivedValue, String(localized: .signupInvalidEmail))
+    }
+
+    func test_invalidEmailMessagePublisher_whenValidEmail_thenNil() async {
+        // Arrange
+        let emailSubject = PassthroughSubject<String, Never>()
+        let vm = sut(onEmailChangedPublisher: emailSubject)
+        var receivedValue: String?
+        let expectation = XCTestExpectation(description: "Receive value")
+        var cancellables: Set<AnyCancellable> = []
+
+        vm.invalidEmailMessagePublisher.sink { value in
+            receivedValue = value
+            expectation.fulfill()
+        }.store(in: &cancellables)
+
+        // Act
+        emailSubject.send("user@example.com")
+
+        // Assert
+        await fulfillment(of: [expectation], timeout: 0.1)
+        XCTAssertNil(receivedValue)
+    }
+}
+
+// MARK: Helpers
+
+extension XCTestCase {
+    
     
 }

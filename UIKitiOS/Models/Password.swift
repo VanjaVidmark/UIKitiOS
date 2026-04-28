@@ -7,13 +7,6 @@
 
 struct Password: Validating, Equatable {
     let value: String
-    static let minimumLength: Int = {
-        #if DEBUG
-        2
-        #else
-        8
-        #endif
-    }()
     
     init(raw: String) throws(Error) {
         guard !raw.isEmpty && raw.count >= Self.minimumLength else { throw Error.invalidPassword }
@@ -23,4 +16,17 @@ struct Password: Validating, Equatable {
     enum Error: Swift.Error {
         case invalidPassword
     }
+}
+
+extension Password {
+    private static let minLengthDebug: Int = 2
+    private static let minLengthRelease: Int = 8
+    
+    static let minimumLength: Int = {
+        #if DEBUG
+        return NSClassFromString("XCTestCase") != nil ? minLengthRelease : minLengthDebug
+        #else
+        minLengthRelease
+        #endif
+    }()
 }
