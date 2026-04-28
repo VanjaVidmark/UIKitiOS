@@ -124,8 +124,8 @@ extension SignupView {
         button.isEnabled = enabled
     }
 
-    func setEmailError(_ message: LocalizedStringResource?) {
-        if let message { emailInputFieldView.showError(String(localized: message)) } else { emailInputFieldView.hideError() }
+    func setEmailError(_ message: String?) {
+        if let message { emailInputFieldView.showError(message) } else { emailInputFieldView.hideError() }
     }
 
     func setPasswordError(_ message: String?) {

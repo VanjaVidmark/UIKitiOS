@@ -61,71 +61,16 @@ final class SignupViewModel {
 // MARK: Internal
 
 extension SignupViewModel {
-    private var emailValuePublisher: AnyPublisher<Email?, Never> {
-        emailSubject.eraseToAnyPublisher()
-    }
-    var passwordPublisher: AnyPublisher<Password?, Never> {
-        passwordSubject.eraseToAnyPublisher()
-    }
-    var confirmationPublisher: AnyPublisher<Password?, Never> {
-        confirmationSubject.eraseToAnyPublisher()
-    }
-    var isEmailValidPublisher: AnyPublisher<Bool, Never> {
-        emailSubject
-            .map {email in email != nil}
-            .eraseToAnyPublisher()
-    }
-    var isPasswordValidPublisher: AnyPublisher<Bool, Never> {
-        passwordSubject
-            .map { password in password != nil }
-            .eraseToAnyPublisher()
-    }
-    var isConfirmationValidPublisher: AnyPublisher<Bool, Never> {
-        confirmationSubject
-            .map { confirmation in confirmation != nil }
-            .eraseToAnyPublisher()
-    }
-    var passwordsMatchPublisher: AnyPublisher<Bool, Never> {
-        Publishers
-            .CombineLatest(onPasswordChangedPublisher, onConfirmationChangedPublisher)
-            .map { password, confirmation in password == confirmation }
-            .eraseToAnyPublisher()
-    }
-    var confirmedValidPasswordPublisher: AnyPublisher<Password?, Never> {
-        Publishers
-            .CombineLatest(passwordPublisher, passwordsMatchPublisher)
-            .map { password, isMatching in isMatching ? password : nil }
-            .eraseToAnyPublisher()
-    }
-    var validUserPublisher: AnyPublisher<User?, Never> {
-        Publishers
-            .CombineLatest(emailValuePublisher, confirmedValidPasswordPublisher)
-            .map({email, password in
-                guard let email, let password else { return nil }
-                let user = User(email: email, password: password)
-                log.debug("\(user)")
-                return user
-            })
-            .eraseToAnyPublisher()
-    }
+    
     var isFormValidPublisher: AnyPublisher<Bool, Never> {
         validUserPublisher
             .map {validUser in validUser != nil}
             .eraseToAnyPublisher()
     }
     
-   /* private var invalidEmailMessagePublisher: AnyPublisher<String?, Never> {
+    var invalidEmailMessagePublisher: AnyPublisher<String?, Never> {
         isEmailValidPublisher
             .map { isValid in isValid ? nil : String(localized: .signupInvalidEmail) }
-            .eraseToAnyPublisher()
-    } */
-    
-    var emailPublisher: AnyPublisher<Result<Email, LocalizedStringResource>, Never> {
-        emailValuePublisher
-            .map({maybeEmail in
-                guard let email = maybeEmail else { return .failure(.signupInvalidEmail)}
-                return .success(email)
-            })
             .eraseToAnyPublisher()
     }
     
@@ -146,4 +91,60 @@ extension SignupViewModel {
             .map { isMatching in isMatching ? nil : String(localized: .signupNotMatchingPassword) }
             .eraseToAnyPublisher()
     }
+}
+
+// MARK: Private
+
+extension SignupViewModel {
+    
+    private var emailPublisher: AnyPublisher<Email?, Never> {
+        emailSubject.eraseToAnyPublisher()
+    }
+    private var passwordPublisher: AnyPublisher<Password?, Never> {
+        passwordSubject.eraseToAnyPublisher()
+    }
+    private var confirmationPublisher: AnyPublisher<Password?, Never> {
+        confirmationSubject.eraseToAnyPublisher()
+    }
+    
+    private var isEmailValidPublisher: AnyPublisher<Bool, Never> {
+        emailSubject
+            .map {email in email != nil}
+            .eraseToAnyPublisher()
+    }
+    private var isPasswordValidPublisher: AnyPublisher<Bool, Never> {
+        passwordSubject
+            .map { password in password != nil }
+            .eraseToAnyPublisher()
+    }
+    private var isConfirmationValidPublisher: AnyPublisher<Bool, Never> {
+        confirmationSubject
+            .map { confirmation in confirmation != nil }
+            .eraseToAnyPublisher()
+    }
+    private var passwordsMatchPublisher: AnyPublisher<Bool, Never> {
+        Publishers
+            .CombineLatest(onPasswordChangedPublisher, onConfirmationChangedPublisher)
+            .map { password, confirmation in password == confirmation }
+            .eraseToAnyPublisher()
+    }
+    private var confirmedValidPasswordPublisher: AnyPublisher<Password?, Never> {
+        Publishers
+            .CombineLatest(passwordPublisher, passwordsMatchPublisher)
+            .map { password, isMatching in isMatching ? password : nil }
+            .eraseToAnyPublisher()
+    }
+    
+    private var validUserPublisher: AnyPublisher<User?, Never> {
+        Publishers
+            .CombineLatest(emailPublisher, confirmedValidPasswordPublisher)
+            .map({email, password in
+                guard let email, let password else { return nil }
+                let user = User(email: email, password: password)
+                log.debug("\(user)")
+                return user
+            })
+            .eraseToAnyPublisher()
+    }
+    
 }

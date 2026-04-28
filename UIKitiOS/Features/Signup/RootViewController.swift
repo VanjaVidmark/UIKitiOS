@@ -28,8 +28,7 @@ final class RootViewController: UIViewController {
         self.signupViewModel = vm
         super.init(nibName: nil, bundle: nil)
         
-        vm.emailPublisher
-            .map({emailResult in emailResult.failure})
+        vm.invalidEmailMessagePublisher
             .sink(receiveValue: { [weak self] localizedError in self?.signupView.setEmailError(localizedError) })
             .store(in: &cancellables)
         
