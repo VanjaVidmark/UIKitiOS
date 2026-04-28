@@ -8,21 +8,53 @@
 import UIKit
 import Combine
 
+struct ApiError: Error {}
+
+typealias JWT = String
+
+protocol SignupService {
+    func signup(user: User) -> any Publisher<JWT, ApiError>
+}
+
+struct DummySignupService: SignupService {
+    func signup(user: User) -> any Publisher<JWT, ApiError> {
+        Just<JWT>("this-is-a-token").setFailureType(to: ApiError.self)
+    }
+}
+
+protocol SignupNavigationDelegate {
+    func userSignedUp(jwt: JWT)
+}
+
+private struct DummySignupNavigationDelegate: SignupNavigationDelegate {
+    func userSignedUp(jwt: JWT) {
+        log.debug("About to navigate after successful sign up")
+    }
+}
+
+
+
 final class RootViewController: UIViewController {
     
     private let signupViewModel: SignupViewModel
     private let signupView: SignupView
+    private let signupService: SignupService
+    private let signupNavigationDelegate: SignupNavigationDelegate
     
     private lazy var cancellables = Set<AnyCancellable>()
     
     init() {
         self.signupView = SignupView()
+        self.signupService = DummySignupService()
+        self.signupNavigationDelegate = DummySignupNavigationDelegate()
         
         let vm = SignupViewModel(
             onEmailChangedPublisher: self.signupView.onEmailChangedPublisher,
             onPasswordChangedPublisher: self.signupView.onPasswordChangedPublisher,
             onConfirmationChangedPublisher: self.signupView.onConfirmationChangedPublisher,
-            onButtonTapPublisher: self.signupView.onButtonTapPublisher
+            onButtonTapPublisher: self.signupView.onButtonTapPublisher,
+            signupService: self.signupService,
+            navigator: self.signupNavigationDelegate,
         )
         
         self.signupViewModel = vm

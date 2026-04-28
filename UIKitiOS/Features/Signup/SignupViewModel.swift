@@ -9,7 +9,7 @@ import Foundation
 import Combine
 
 final class SignupViewModel {
-
+    
     private let emailSubject = PassthroughSubject<Email?, Never>()
     private let passwordSubject = PassthroughSubject<Password?, Never>()
     private let confirmationSubject = PassthroughSubject<Password?, Never>()
@@ -22,14 +22,21 @@ final class SignupViewModel {
     private let onConfirmationChangedPublisher: AnyPublisher<String, Never>
     private let onButtonTapPublisher: AnyPublisher<Void, Never>
     
+    private let signupService: SignupService
+    private let navigator: SignupNavigationDelegate
+    
     private var cancellables: Set<AnyCancellable> = []
     
     init(
         onEmailChangedPublisher: any Publisher<String, Never>,
         onPasswordChangedPublisher: any Publisher<String, Never>,
         onConfirmationChangedPublisher: any Publisher<String, Never>,
-        onButtonTapPublisher: any Publisher<Void, Never>
+        onButtonTapPublisher: any Publisher<Void, Never>,
+        signupService: SignupService,
+        navigator: SignupNavigationDelegate,
     ) {
+        self.signupService = signupService
+        self.navigator = navigator
         self.onEmailChangedPublisher = onEmailChangedPublisher.eraseToAnyPublisher()
         self.onEmailChangedPublisher
             .map { rawEmail in try? Email(raw: rawEmail) }
@@ -52,10 +59,11 @@ final class SignupViewModel {
         self.onButtonTapPublisher
             .combineLatest(validUserPublisher.filterOutNil())
             .map { _, user in user }
-            .sink(receiveValue: {user in log.debug("Shall login with \(user)")})
+            .sink(receiveValue: { [weak self] user in
+                self?.onSignupTapped(user: user)
+            })
             .store(in: &cancellables)
     }
-
 }
 
 // MARK: Internal
@@ -96,6 +104,22 @@ extension SignupViewModel {
 // MARK: Private
 
 extension SignupViewModel {
+    
+    private func onSignupTapped(user: User) {
+        var publisher = signupService.signup(user: user)
+        
+        publisher.sink(receiveCompletion: { completion in
+            switch completion {
+            case .finished:
+                log.debug("Signup publisher finished")
+            case let .failure(error):
+                log.error("\(error)")
+                log.debug("Here I would display the error to the user")
+            }
+        }, receiveValue: { [weak self] value in self?.navigator.userSignedUp(jwt: value)
+        })
+        .store(in: &cancellables)
+    }
     
     private var emailPublisher: AnyPublisher<Email?, Never> {
         emailSubject.eraseToAnyPublisher()
