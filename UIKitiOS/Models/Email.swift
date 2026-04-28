@@ -22,4 +22,8 @@ extension Email: CustomStringConvertible {
     var description: String {
         value
     }
+    
+    #if DEBUG
+        static let example: Self = try! .init(raw: "test@example.com")
+    #endif
 }

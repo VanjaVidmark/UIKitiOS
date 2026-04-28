@@ -29,4 +29,8 @@ extension Password {
         minLengthRelease
         #endif
     }()
+    
+    #if DEBUG
+        static let example: Self = try! .init(raw: "password")
+    #endif
 }

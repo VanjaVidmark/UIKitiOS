@@ -14,14 +14,40 @@ func sut(
     onPasswordChangedPublisher: any Publisher<String, Never> = Empty(completeImmediately: true),
     onConfirmationChangedPublisher: any Publisher<String, Never> = Empty(completeImmediately: true),
     onButtonTapPublisher: any Publisher<Void, Never> = Empty(completeImmediately: true),
+    signUpService: any SignupService = MockSignupService(),
+    navigator: any SignupNavigationDelegate = MockSignupNavigationDelegate(),
+    
 ) -> SignupViewModel {
     SignupViewModel(
         onEmailChangedPublisher: onEmailChangedPublisher,
         onPasswordChangedPublisher: onPasswordChangedPublisher,
         onConfirmationChangedPublisher: onConfirmationChangedPublisher,
         onButtonTapPublisher: onButtonTapPublisher,
+        signupService: signUpService,
+        navigator: navigator,
     )
 }
+
+final class MockSignupService: SignupService {
+    var wasSignupCalled = false
+    
+    func signup(user: User) -> any Publisher<JWT, ApiError> {
+        defer {
+            wasSignupCalled = true
+        }
+        return Just<JWT>("this-is-a-token").setFailureType(to: ApiError.self)
+    }
+}
+
+final class MockSignupNavigationDelegate: SignupNavigationDelegate {
+    func userSignedUp(jwt: JWT) {
+        log.debug("About to navigate after successful sign up")
+    }
+    deinit {
+        log.debug("deinit DummySignupNavigationDelegate")
+    }
+}
+
 
 final class Box<Value> {
     var value: Value?
@@ -124,6 +150,20 @@ final class SignupViewModelTests: XCTestCase {
         // Assert
         await fulfillment(of: [expectation], timeout: 0.1)
         XCTAssertTrue(try XCTUnwrap(sink.value))
+    }
+    
+    // MARK: onSignupTapped
+    
+    func test_onSignupTapped_whenCalled_thenCallsService() {
+        let service = MockSignupService()
+        let navigator = MockSignupNavigationDelegate()
+        let sut = sut(signUpService: service, navigator: navigator)
+        
+        // Act
+        sut.onSignupTapped(user: .example)
+        
+        // Assert
+        XCTAssertTrue(service.wasSignupCalled)
     }
 }
 

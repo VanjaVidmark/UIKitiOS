@@ -16,7 +16,7 @@ protocol SignupService {
     func signup(user: User) -> any Publisher<JWT, ApiError>
 }
 
-struct DummySignupService: SignupService {
+final class DummySignupService: SignupService {
     func signup(user: User) -> any Publisher<JWT, ApiError> {
         Just<JWT>("this-is-a-token").setFailureType(to: ApiError.self)
     }
@@ -26,9 +26,12 @@ protocol SignupNavigationDelegate {
     func userSignedUp(jwt: JWT)
 }
 
-private struct DummySignupNavigationDelegate: SignupNavigationDelegate {
+final class DummySignupNavigationDelegate: SignupNavigationDelegate {
     func userSignedUp(jwt: JWT) {
         log.debug("About to navigate after successful sign up")
+    }
+    deinit {
+        log.debug("deinit DummySignupNavigationDelegate")
     }
 }
 

@@ -14,4 +14,7 @@ extension User {
     var description: String {
         "User(email:\(email))"
     }
+    #if DEBUG
+    static let example: Self = .init(email: .example, password: .example)
+    #endif
 }

@@ -105,8 +105,8 @@ extension SignupViewModel {
 
 extension SignupViewModel {
     
-    private func onSignupTapped(user: User) {
-        var publisher = signupService.signup(user: user)
+    func onSignupTapped(user: User) {
+        let publisher = signupService.signup(user: user)
         
         publisher.sink(receiveCompletion: { completion in
             switch completion {
@@ -116,7 +116,8 @@ extension SignupViewModel {
                 log.error("\(error)")
                 log.debug("Here I would display the error to the user")
             }
-        }, receiveValue: { [weak self] value in self?.navigator.userSignedUp(jwt: value)
+        }, receiveValue: { [weak self] value in
+            self?.navigator.userSignedUp(jwt: value)
         })
         .store(in: &cancellables)
     }
