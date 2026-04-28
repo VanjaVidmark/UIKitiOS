@@ -72,9 +72,13 @@ extension InputFieldView {
         onEditingChangedSubject.eraseToAnyPublisher()
     }
     
-    var onEditingEndedPublisher: AnyPublisher<Void, Never> {
+    private var onEditingEndedPublisher: AnyPublisher<Void, Never> {
         onEditingEndedSubject.eraseToAnyPublisher()
     }
+    /*
+    var textWhenEditingEndedPublisher: AnyPublisher<String, Never> {
+        onEditingEndedPublisher.withLatestfrom(onEditingChangedPublisher)
+    }*/
 
     func showError(_ message: String) {
         errorLabel.text = message

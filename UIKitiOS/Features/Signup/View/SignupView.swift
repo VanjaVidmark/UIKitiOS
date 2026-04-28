@@ -97,21 +97,24 @@ extension SignupView {
     var onEmailChangedPublisher: AnyPublisher<String, Never> {
         emailInputFieldView.onEditingChangedPublisher
     }
+    /*
     var onEmailEditingEndedPublisher: AnyPublisher<Void, Never> {
         emailInputFieldView.onEditingEndedPublisher
-    }
+    }*/
     var onPasswordChangedPublisher: AnyPublisher<String, Never> {
         passwordInputFieldView.onEditingChangedPublisher
     }
+    /*
     var onPasswordEditingEndedPublisher: AnyPublisher<Void, Never> {
         passwordInputFieldView.onEditingEndedPublisher
-    }
+    }*/
     var onConfirmationChangedPublisher: AnyPublisher<String, Never> {
         passwordConfirmationInputFieldView.onEditingChangedPublisher
     }
+    /*
     var onConfirmationEditingEndedPublisher: AnyPublisher<Void, Never> {
         passwordConfirmationInputFieldView.onEditingEndedPublisher
-    }
+    }*/
     var onButtonTapPublisher: AnyPublisher<Void, Never> {
         onButtonTapSubject.eraseToAnyPublisher()
     }

@@ -22,7 +22,7 @@ final class RootViewController: UIViewController {
             onEmailChangedPublisher: self.signupView.onEmailChangedPublisher,
             onPasswordChangedPublisher: self.signupView.onPasswordChangedPublisher,
             onConfirmationChangedPublisher: self.signupView.onConfirmationChangedPublisher,
-            onButtonTap: self.signupView.onButtonTapPublisher
+            onButtonTapPublisher: self.signupView.onButtonTapPublisher
         )
         
         self.signupViewModel = vm

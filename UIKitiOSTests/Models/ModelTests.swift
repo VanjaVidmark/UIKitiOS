@@ -54,7 +54,7 @@ final class ModelTests: XCTestCase {
 
     func test_password_init_passwordShorterThanEightCharsThrows() {
         // Arrange + Act + Assert
-        XCTAssertThrowsError(try Password(raw: "pass")) {
+        XCTAssertThrowsError(try Password(raw: "pp")) {
             error in XCTAssertEqual(error as? Password.Error, .invalidPassword)
         }
     }

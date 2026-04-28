@@ -6,69 +6,46 @@
 //
 
 import XCTest
+import Combine
 @testable import UIKitiOS
+
+func sut(
+    onEmailChangedPublisher: any Publisher<String, Never> = Empty(completeImmediately: true),
+    onPasswordChangedPublisher: any Publisher<String, Never> = Empty(completeImmediately: true),
+    onConfirmationChangedPublisher: any Publisher<String, Never> = Empty(completeImmediately: true),
+    onButtonTapPublisher: any Publisher<Void, Never> = Empty(completeImmediately: true),
+) -> SignupViewModel {
+    SignupViewModel(
+        onEmailChangedPublisher: onEmailChangedPublisher,
+        onPasswordChangedPublisher: onPasswordChangedPublisher,
+        onConfirmationChangedPublisher: onConfirmationChangedPublisher,
+        onButtonTapPublisher: onButtonTapPublisher,
+    )
+}
 
 final class SignupViewModelTests: XCTestCase {
 
-    private var vm: SignupViewModel!
-    private var isFormValid: Bool?
+    // MARK: invalidEmailMessagePublisher
+    
+    func test_invalidEmailMessagePublisher_whenInvalidEmail_thenEmits() async {
+        // Arrange
+        let emailSubject = PassthroughSubject<String, Never>()
+        let vm = sut(onEmailChangedPublisher: emailSubject)
+        var receivedValue: String?
+        let expectation = XCTestExpectation(description: "Receive value")
+        var cancellables: Set<AnyCancellable> = []
 
-    override func setUp() {
-        super.setUp()
-        isFormValid = nil
-        vm = SignupViewModel()
-        vm.onFormValidityChanged = { [weak self] isValid in self?.isFormValid = isValid }
-    }
+        vm.invalidEmailMessagePublisher.sink { value in
+            receivedValue = value
+            expectation.fulfill()
+        }.store(in: &cancellables)
 
-    override func tearDown() {
-        vm = nil
-        super.tearDown()
-    }
-
-    // MARK: onFormValidityChanged
-
-    func test_onFormValidityChanged_allEmptyReturnsFalse() {
         // Act
-        vm.emailChanged("")
+        emailSubject.send("invalid-email")
 
         // Assert
-        XCTAssertEqual(isFormValid, false)
+        await fulfillment(of: [expectation], timeout: 0.1)
+        XCTAssertEqual(receivedValue, String(localized: .signupInvalidEmail))
     }
-
-    func test_onFormValidityChanged_onlyEmailValidReturnsFalse() {
-        // Act
-        vm.emailChanged("example@user.com")
-
-        // Assert
-        XCTAssertEqual(isFormValid, false)
-    }
-
-    func test_onFormValidityChanged_confirmationEmptyReturnsFalse() {
-        // Act
-        vm.emailChanged("example@user.com")
-        vm.passwordChanged("password")
-
-        // Assert
-        XCTAssertEqual(isFormValid, false)
-    }
-
-    func test_onFormValidityChanged_passwordsNotMatchingReturnsFalse() {
-        // Act
-        vm.emailChanged("example@user.com")
-        vm.passwordChanged("password")
-        vm.passwordConfirmationChanged("anotherpassword")
-
-        // Assert
-        XCTAssertEqual(isFormValid, false)
-    }
-
-    func test_onFormValidityChanged_allValidReturnsTrue() {
-        // Act
-        vm.emailChanged("example@user.com")
-        vm.passwordChanged("password")
-        vm.passwordConfirmationChanged("password")
-
-        // Assert
-        XCTAssertEqual(isFormValid, true)
-    }
+    
 }

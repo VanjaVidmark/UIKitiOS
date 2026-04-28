@@ -28,7 +28,7 @@ final class SignupViewModel {
         onEmailChangedPublisher: any Publisher<String, Never>,
         onPasswordChangedPublisher: any Publisher<String, Never>,
         onConfirmationChangedPublisher: any Publisher<String, Never>,
-        onButtonTap: any Publisher<Void, Never>
+        onButtonTapPublisher: any Publisher<Void, Never>
     ) {
         self.onEmailChangedPublisher = onEmailChangedPublisher.eraseToAnyPublisher()
         self.onEmailChangedPublisher
@@ -48,7 +48,7 @@ final class SignupViewModel {
             .sink(receiveValue: { [weak confirmationSubject] confirmation in confirmationSubject?.send(confirmation)})
             .store(in: &cancellables)
         
-        self.onButtonTapPublisher = onButtonTap.eraseToAnyPublisher()
+        self.onButtonTapPublisher = onButtonTapPublisher.eraseToAnyPublisher()
         self.onButtonTapPublisher
             .combineLatest(validUserPublisher.filterOutNil())
             .map { _, user in user }
