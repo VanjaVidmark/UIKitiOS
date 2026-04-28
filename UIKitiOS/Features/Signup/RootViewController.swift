@@ -10,10 +10,7 @@ import Combine
 
 final class RootViewController: UIViewController {
     
-    // eager var
     private let signupViewModel: SignupViewModel
-    
-    // can be lazy var, we can provide vm publishers
     private let signupView: SignupView
     
     private lazy var cancellables = Set<AnyCancellable>()
@@ -51,8 +48,6 @@ final class RootViewController: UIViewController {
         vm.isFormValidPublisher
             .sink(receiveValue: { [weak self] isFormValid in self?.signupView.setButtonEnabled(isFormValid) })
             .store(in: &cancellables)
-        
-            
     }
     
     required init?(coder: NSCoder) {
@@ -133,14 +128,5 @@ private extension RootViewController {
         signupViewModel.onConfirmationMismatch = { [weak self] in
             self?.signupView.setConfirmationError(String(localized: .signupNotMatchingPassword))
         }*/
-    }
-}
-
-extension Result {
-    var failure: Failure? {
-        switch self {
-            case .success: return nil
-            case .failure(let failure): return failure
-        }
     }
 }

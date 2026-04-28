@@ -17,3 +17,9 @@ struct Email: Validating {
         case invalidEmail
     }
 }
+
+extension Email: CustomStringConvertible {
+    var description: String {
+        value
+    }
+}

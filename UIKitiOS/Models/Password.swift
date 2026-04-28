@@ -9,7 +9,7 @@ struct Password: Validating, Equatable {
     let value: String
     static let minimumLength: Int = {
         #if DEBUG
-        1
+        2
         #else
         8
         #endif

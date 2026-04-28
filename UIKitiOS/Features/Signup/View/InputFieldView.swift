@@ -12,7 +12,8 @@ class InputFieldView<Value: Validating>: UIView where Value.RawValue == String {
     private let inputLabel: UILabel
     private let textField: UITextField
     private let errorLabel: UILabel
-    private let onEditingChangedSubject: PassthroughSubject<String, Never>
+    // Creates subjects: these are published on onChanged and onEditingEnded
+    private let onEditingChangedSubject = PassthroughSubject<String, Never>()
     private let onEditingEndedSubject = PassthroughSubject<Void, Never>()
 
     init(
@@ -22,20 +23,18 @@ class InputFieldView<Value: Validating>: UIView where Value.RawValue == String {
         keyboardType: UIKeyboardType = .default,
         isSecureTextEntry: Bool = false,
     ) {
-        let onEditingChangedSubject = PassthroughSubject<String, Never>()
         inputLabel = UILabel.makeInputLabel(text: String(localized: inputLabelText))
         textField = UITextField.make(
             placeholderL10NKey: placeholder,
             keyboardType: keyboardType,
             isSecureTextEntry: isSecureTextEntry,
-            onEditingChangedSubject: onEditingChangedSubject,
         )
         errorLabel = UILabel.makeErrorLabel(text: String(localized: errorLabelText))
-        self.onEditingChangedSubject = onEditingChangedSubject
-        
+
         super.init(frame: .zero)
 
         setupLayout()
+        textField.addAction(UIAction { [weak self] _ in self?.onEditingChangedSubject.send(self?.textField.text ?? "") }, for: .editingChanged)
         textField.addAction(UIAction { [weak self] _ in self?.onEditingEndedSubject.send() }, for: .editingDidEnd)
     }
 
@@ -68,6 +67,7 @@ class InputFieldView<Value: Validating>: UIView where Value.RawValue == String {
 
 extension InputFieldView {
     
+    // The subjects are exposed as publishers
     var onEditingChangedPublisher: AnyPublisher<String, Never> {
         onEditingChangedSubject.eraseToAnyPublisher()
     }

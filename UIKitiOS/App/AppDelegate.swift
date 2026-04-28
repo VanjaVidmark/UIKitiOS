@@ -7,6 +7,10 @@
 
 import UIKit
 
+@_exported import OSLog
+
+let log = Logger(subsystem: "com.example.UIKitiOS", category: "Main")
+
 @main
 class AppDelegate: UIResponder {}
 

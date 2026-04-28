@@ -91,10 +91,9 @@ final class SignupView: UIView {
     }
 }
 
-// MARK:
+// MARK: Publishers
 
 extension SignupView {
-    
     var onEmailChangedPublisher: AnyPublisher<String, Never> {
         emailInputFieldView.onEditingChangedPublisher
     }
@@ -116,7 +115,11 @@ extension SignupView {
     var onButtonTapPublisher: AnyPublisher<Void, Never> {
         onButtonTapSubject.eraseToAnyPublisher()
     }
-    
+}
+
+// MARK: View Updates
+
+extension SignupView {
     func setButtonEnabled(_ enabled: Bool) {
         button.isEnabled = enabled
     }

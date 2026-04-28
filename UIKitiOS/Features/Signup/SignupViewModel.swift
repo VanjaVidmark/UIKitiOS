@@ -8,18 +8,6 @@
 import Foundation
 import Combine
 
-struct User: CustomStringConvertible {
-    let email: Email
-    let password: Password
-}
-
-extension User {
-    var description: String
-    {
-        "email: \(email)"
-    }
-}
-
 final class SignupViewModel {
 
     private let emailSubject = PassthroughSubject<Email?, Never>()
@@ -27,13 +15,13 @@ final class SignupViewModel {
     private let confirmationSubject = PassthroughSubject<Password?, Never>()
     
     private let onFormValidityChangedSubject = PassthroughSubject<Bool, Never>()
-    
     private let onConfirmationMismatchSubject = PassthroughSubject<Void, Never>()
     
     private let onEmailChangedPublisher: AnyPublisher<String, Never>
     private let onPasswordChangedPublisher: AnyPublisher<String, Never>
     private let onConfirmationChangedPublisher: AnyPublisher<String, Never>
-    private let onButtonTap: AnyPublisher<Void, Never>
+    private let onButtonTapPublisher: AnyPublisher<Void, Never>
+    
     private var cancellables: Set<AnyCancellable> = []
     
     init(
@@ -43,52 +31,34 @@ final class SignupViewModel {
         onButtonTap: any Publisher<Void, Never>
     ) {
         self.onEmailChangedPublisher = onEmailChangedPublisher.eraseToAnyPublisher()
-        self.onPasswordChangedPublisher = onPasswordChangedPublisher.eraseToAnyPublisher()
-        self.onConfirmationChangedPublisher = onConfirmationChangedPublisher.eraseToAnyPublisher()
-        self.onButtonTap = onButtonTap.eraseToAnyPublisher()
-        self.onButtonTap
-            .combineLatest(validUserPublisher.filterOutNil())
-            .map { _, user in user }
-            .sink(receiveValue: {user in print(user)})
-            .store(in: &cancellables)
         self.onEmailChangedPublisher
             .map { rawEmail in try? Email(raw: rawEmail) }
             .sink(receiveValue: { [weak emailSubject] email in emailSubject?.send(email)})
             .store(in: &cancellables)
+        
+        self.onPasswordChangedPublisher = onPasswordChangedPublisher.eraseToAnyPublisher()
         self.onPasswordChangedPublisher
             .map { rawPassword in try? Password(raw: rawPassword)}
             .sink(receiveValue: { [weak passwordSubject] password in passwordSubject?.send(password)})
             .store(in: &cancellables)
+        
+        self.onConfirmationChangedPublisher = onConfirmationChangedPublisher.eraseToAnyPublisher()
         self.onConfirmationChangedPublisher
             .map { rawConfirmation in try? Password(raw: rawConfirmation)}
             .sink(receiveValue: { [weak confirmationSubject] confirmation in confirmationSubject?.send(confirmation)})
+            .store(in: &cancellables)
+        
+        self.onButtonTapPublisher = onButtonTap.eraseToAnyPublisher()
+        self.onButtonTapPublisher
+            .combineLatest(validUserPublisher.filterOutNil())
+            .map { _, user in user }
+            .sink(receiveValue: {user in print(user)})
             .store(in: &cancellables)
     }
 
 }
 
-public protocol OptionalProtocol {
-    associatedtype Wrapped
-    var value: Wrapped? { get }
-}
-
-extension Optional: OptionalProtocol {
-    public var value: Wrapped? {
-        self
-    }
-}
-
-extension Publisher where Output: OptionalProtocol {
-    public func filterOutNil() -> AnyPublisher<Output.Wrapped, Failure> {
-        compactMap { maybeOutput in
-            guard let unwrapped = maybeOutput.value else {
-                return nil
-            }
-            return unwrapped
-        }.eraseToAnyPublisher()
-    }
-}
-// MARK: - Internal
+// MARK: Internal
 
 extension SignupViewModel {
     private var emailValuePublisher: AnyPublisher<Email?, Never> {
@@ -132,7 +102,9 @@ extension SignupViewModel {
             .CombineLatest(emailValuePublisher, confirmedValidPasswordPublisher)
             .map({email, password in
                 guard let email, let password else { return nil }
-                return User(email: email, password: password)
+                let user = User(email: email, password: password)
+                log.debug("\(user)")
+                return user
             })
             .eraseToAnyPublisher()
     }
@@ -173,11 +145,5 @@ extension SignupViewModel {
         passwordsMatchPublisher
             .map { isMatching in isMatching ? nil : String(localized: .signupNotMatchingPassword) }
             .eraseToAnyPublisher()
-    }
-}
-
-extension LocalizedStringResource: @retroactive LocalizedError {
-    public var errorDescription: String? {
-        String(localized: self)
     }
 }
