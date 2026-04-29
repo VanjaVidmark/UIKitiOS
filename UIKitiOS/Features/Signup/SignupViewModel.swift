@@ -24,6 +24,7 @@ final class SignupViewModel {
     
     private weak var signupService: (any SignupService)?
     private weak var navigator: (any SignupNavigationDelegate)?
+    private weak var userStorage: (any SecureStorageOfUser)?
     
     private var cancellables: Set<AnyCancellable> = []
     
@@ -34,9 +35,11 @@ final class SignupViewModel {
         onButtonTapPublisher: any Publisher<Void, Never>,
         signupService: SignupService,
         navigator: any SignupNavigationDelegate,
+        userStorage: any SecureStorageOfUser,
     ) {
         self.signupService = signupService
         self.navigator = navigator
+        self.userStorage = userStorage
         self.onEmailChangedPublisher = onEmailChangedPublisher.eraseToAnyPublisher()
         self.onEmailChangedPublisher
             .map { rawEmail in try? Email(raw: rawEmail) }
@@ -123,13 +126,19 @@ extension SignupViewModel {
                         log.error("\(error)")
                         log.debug("Here I would display the error to the user")
                 }
-            }, receiveValue: { [weak navigator] value in
-                guard let navigator else { log.debug("navigator is nil"); return }
-                log.debug("about to call userSignedUp")
-                navigator.userSignedUp(jwt: value, user: user)
-                
+            }, receiveValue: { [weak self] value in self?.userDidSignUp(jwt: value, user: user)
             })
             .store(in: &cancellables)
+    }
+    
+    private func userDidSignUp(jwt: String, user: User) {
+        log.debug("Successful signup. About to save user and navigate.")
+        do {
+            try userStorage?.saveUser(user)
+        } catch {
+            log.error("Failed to save user: \(error)")
+        }
+        navigator?.userSignedUp(jwt: jwt, user: user)
     }
     
     private var emailPublisher: AnyPublisher<Email?, Never> {

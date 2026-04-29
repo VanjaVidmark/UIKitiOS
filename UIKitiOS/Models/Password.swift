@@ -5,7 +5,7 @@
 //  Created by Vanja Vidmark on 2026-04-24.
 //
 
-struct Password: Validating, Equatable {
+struct Password: Validating {
     let value: String
     
     init(raw: String) throws(Error) {
@@ -17,6 +17,9 @@ struct Password: Validating, Equatable {
         case invalidPassword
     }
 }
+
+extension Password: Equatable {}
+extension Password: Codable {}
 
 extension Password {
     private static let minLengthDebug: Int = 2

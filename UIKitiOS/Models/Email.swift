@@ -29,3 +29,4 @@ extension Email: CustomStringConvertible {
 }
 
 extension Email: Equatable {}
+extension Email: Codable {}

@@ -17,6 +17,7 @@ extension User : CustomStringConvertible {
 }
 
 extension User: Equatable {}
+extension User: Codable {}
 
 extension User {
     #if DEBUG

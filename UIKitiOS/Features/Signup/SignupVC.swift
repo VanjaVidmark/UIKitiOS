@@ -17,7 +17,10 @@ final class SignupVC: UIViewController {
     
     private lazy var cancellables = Set<AnyCancellable>()
     
-    init(navigationDelegate: any SignupNavigationDelegate) {
+    init(
+        navigationDelegate: any SignupNavigationDelegate,
+        userStorage: any SecureStorageOfUser,
+    ) {
         self.signupView = SignupView()
         self.signupService = DummySignupService()
         self.signupNavigationDelegate = navigationDelegate
@@ -29,6 +32,7 @@ final class SignupVC: UIViewController {
             onButtonTapPublisher: self.signupView.onButtonTapPublisher,
             signupService: self.signupService,
             navigator: self.signupNavigationDelegate,
+            userStorage: userStorage,
         )
         
         self.signupViewModel = vm
