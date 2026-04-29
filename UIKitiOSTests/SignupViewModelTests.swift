@@ -29,22 +29,26 @@ func sut(
 }
 
 final class MockSignupService: SignupService {
-    var wasSignupCalled = false
+    nonisolated(unsafe) var wasSignupCalled = false
     
-    func signup(user: User) -> any Publisher<JWT, ApiError> {
+    nonisolated func signup(user: User) -> AnyPublisher<JWT, ApiError> {
         defer {
             wasSignupCalled = true
         }
-        return Just<JWT>("this-is-a-token").setFailureType(to: ApiError.self)
+        return Just<JWT>("this-is-a-token")
+            .setFailureType(to: ApiError.self)
+            .eraseToAnyPublisher()
     }
 }
 
 final class MockSignupNavigationDelegate: SignupNavigationDelegate {
-    func userSignedUp(jwt: JWT) {
+    nonisolated(unsafe) var wasUserSignedUpCalled = false
+    
+    nonisolated func userSignedUp(jwt: JWT) {
+        defer {
+            wasUserSignedUpCalled = true
+        }
         log.debug("About to navigate after successful sign up")
-    }
-    deinit {
-        log.debug("deinit DummySignupNavigationDelegate")
     }
 }
 
@@ -62,7 +66,7 @@ final class SignupViewModelTests: XCTestCase {
     var cancellables: Set<AnyCancellable> = []
     
     override func tearDown() {
-        cancellables.forEach {c in c.cancel()}
+        cancellables.forEach({c in c.cancel()})
         cancellables.removeAll()
     }
     
@@ -154,16 +158,28 @@ final class SignupViewModelTests: XCTestCase {
     
     // MARK: onSignupTapped
     
-    func test_onSignupTapped_whenCalled_thenCallsService() {
+    func test_onSignupTapped_whenCalled_thenCallsService() async /* needed to bypass xcode26.1 bug forums.swift.org/t/84034 */ {
+        // Arrange
         let service = MockSignupService()
-        let navigator = MockSignupNavigationDelegate()
-        let sut = sut(signUpService: service, navigator: navigator)
+        let sut = sut(signUpService: service)
         
         // Act
         sut.onSignupTapped(user: .example)
         
         // Assert
         XCTAssertTrue(service.wasSignupCalled)
+    }
+    
+    func test_onSignupTapped_whenCalled_thenCallsNavigator() async /* needed to bypass xcode26.1 bug forums.swift.org/t/84034 */ {
+        // Arrange
+        let navigator = MockSignupNavigationDelegate()
+        let sut = sut(navigator: navigator)
+        
+        // Act
+        sut.onSignupTapped(user: .example)
+        
+        // Assert
+        XCTAssertTrue(navigator.wasUserSignedUpCalled)
     }
 }
 
@@ -184,6 +200,4 @@ extension SignupViewModelTests {
         
         return expectation
     }
-    
-    
 }

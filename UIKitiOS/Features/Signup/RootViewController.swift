@@ -12,17 +12,19 @@ struct ApiError: Error {}
 
 typealias JWT = String
 
-protocol SignupService {
-    func signup(user: User) -> any Publisher<JWT, ApiError>
+protocol SignupService: AnyObject {
+    func signup(user: User) -> AnyPublisher<JWT, ApiError>
 }
 
 final class DummySignupService: SignupService {
-    func signup(user: User) -> any Publisher<JWT, ApiError> {
-        Just<JWT>("this-is-a-token").setFailureType(to: ApiError.self)
+    func signup(user: User) -> AnyPublisher<JWT, ApiError> {
+        Just<JWT>("this-is-a-token")
+            .setFailureType(to: ApiError.self)
+            .eraseToAnyPublisher()
     }
 }
 
-protocol SignupNavigationDelegate {
+protocol SignupNavigationDelegate: AnyObject {
     func userSignedUp(jwt: JWT)
 }
 
