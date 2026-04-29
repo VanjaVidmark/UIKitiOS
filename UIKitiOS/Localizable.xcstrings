@@ -17,6 +17,17 @@
     "Key" : {
       "extractionState" : "manual"
     },
+    "logOutButton" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign Out"
+          }
+        }
+      }
+    },
     "signupButtonTitle" : {
       "extractionState" : "manual",
       "localizations" : {

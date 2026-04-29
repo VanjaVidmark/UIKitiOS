@@ -42,6 +42,12 @@ extension AppCoordinator: SignupNavigationDelegate {
     }
 }
 
+extension AppCoordinator: HomeNavigationDelegate {
+    func userSignedOut() {
+        toSignup()
+    }
+}
+
 // MARK: Private
 
 extension AppCoordinator {
@@ -56,7 +62,7 @@ extension AppCoordinator {
     }
     
     private func makeHomeVC(loggedInUser: User) -> HomeVC {
-        HomeVC(loggedInUser: loggedInUser)
+        HomeVC(loggedInUser: loggedInUser, userStorage: userStorage, navigationDelegate: self)
     }
     
     private func toHome(loggedInUser: User, animated: Bool = true) {

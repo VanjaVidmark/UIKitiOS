@@ -8,6 +8,7 @@
 protocol SecureStorageOfUser: AnyObject {
     func saveUser(_ value: User) throws
     func loadUser() throws -> User?
+    func clearUser()    
 }
 
 final class Insecure︕！StorageOfUser: SecureStorageOfUser {
@@ -35,6 +36,10 @@ final class Insecure︕！StorageOfUser: SecureStorageOfUser {
     func loadUser() throws -> User? {
         guard let data = userDefaults.data(forKey: Self.userKey) else { return nil }
         return try jsonDecoder.decode(User.self, from: data)
+    }
+    
+    func clearUser() {
+        userDefaults.removeObject(forKey: Self.userKey)
     }
 }
 

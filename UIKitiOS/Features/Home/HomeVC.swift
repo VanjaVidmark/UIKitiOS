@@ -6,15 +6,23 @@
 //
 
 import UIKit
-import Combine
 
 final class HomeVC: UIViewController {
     
     private let viewModel: HomeViewModel
     private let homeView = HomeView()
     
-    init(loggedInUser: User) {
-        self.viewModel = HomeViewModel(loggedInUser: loggedInUser)
+    init(
+        loggedInUser: User,
+        userStorage: any SecureStorageOfUser,
+        navigationDelegate: HomeNavigationDelegate,
+    ) {
+        self.viewModel = HomeViewModel(
+            loggedInUser: loggedInUser,
+            onSignOutTappedPublisher: self.homeView.onSignOutTapped,
+            userStorage: userStorage,
+            navigator: navigationDelegate,
+        )
         super.init(nibName: nil, bundle: nil)
     }
     
