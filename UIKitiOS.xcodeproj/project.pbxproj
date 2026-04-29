@@ -22,6 +22,26 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		455B03B22FA1D777008DC625 /* Exceptions for "UIKitiOSTests" folder in "UIKitiOS" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Mocks/MockSignupNavigationDelegate.swift,
+				Mocks/MockSignupService.swift,
+				Models/ModelTests.swift,
+				SignupViewModelTests.swift,
+			);
+			target = 4856F0D72F99E89400A89D8E /* UIKitiOS */;
+		};
+		455B03B32FA1D777008DC625 /* Exceptions for "UIKitiOSTests" folder in "UIKitiOSTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Mocks/MockSignupNavigationDelegate.swift,
+				Mocks/MockSignupService.swift,
+				Models/ModelTests.swift,
+				SignupViewModelTests.swift,
+			);
+			target = 455B020C2F9E8574008DC625 /* UIKitiOSTests */;
+		};
 		4856F0EA2F99E89600A89D8E /* Exceptions for "UIKitiOS" folder in "UIKitiOS" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -32,8 +52,12 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		455B020E2F9E8574008DC625 /* UIKitiOSTests */ = {
+		455B03AD2FA1D777008DC625 /* UIKitiOSTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				455B03B22FA1D777008DC625 /* Exceptions for "UIKitiOSTests" folder in "UIKitiOS" target */,
+				455B03B32FA1D777008DC625 /* Exceptions for "UIKitiOSTests" folder in "UIKitiOSTests" target */,
+			);
 			path = UIKitiOSTests;
 			sourceTree = "<group>";
 		};
@@ -69,8 +93,8 @@
 			isa = PBXGroup;
 			children = (
 				4856F0DA2F99E89400A89D8E /* UIKitiOS */,
-				455B020E2F9E8574008DC625 /* UIKitiOSTests */,
 				4856F0D92F99E89400A89D8E /* Products */,
+				455B03AD2FA1D777008DC625 /* UIKitiOSTests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -99,9 +123,6 @@
 			dependencies = (
 				455B02122F9E8574008DC625 /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				455B020E2F9E8574008DC625 /* UIKitiOSTests */,
-			);
 			name = UIKitiOSTests;
 			packageProductDependencies = (
 			);
@@ -122,6 +143,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				455B03AD2FA1D777008DC625 /* UIKitiOSTests */,
 				4856F0DA2F99E89400A89D8E /* UIKitiOS */,
 			);
 			name = UIKitiOS;

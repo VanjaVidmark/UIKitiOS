@@ -1,5 +1,5 @@
 //
-//  RootViewController.swift
+//  SignupVC.swift
 //  UIKitiOS
 //
 //  Created by Alexander Cyon on 2026-04-23.
@@ -8,38 +8,7 @@
 import UIKit
 import Combine
 
-struct ApiError: Error {}
-
-typealias JWT = String
-
-protocol SignupService: AnyObject {
-    func signup(user: User) -> AnyPublisher<JWT, ApiError>
-}
-
-final class DummySignupService: SignupService {
-    func signup(user: User) -> AnyPublisher<JWT, ApiError> {
-        Just<JWT>("this-is-a-token")
-            .setFailureType(to: ApiError.self)
-            .eraseToAnyPublisher()
-    }
-}
-
-protocol SignupNavigationDelegate: AnyObject {
-    func userSignedUp(jwt: JWT)
-}
-
-final class DummySignupNavigationDelegate: SignupNavigationDelegate {
-    func userSignedUp(jwt: JWT) {
-        log.debug("About to navigate after successful sign up")
-    }
-    deinit {
-        log.debug("deinit DummySignupNavigationDelegate")
-    }
-}
-
-
-
-final class RootViewController: UIViewController {
+final class SignupVC: UIViewController {
     
     private let signupViewModel: SignupViewModel
     private let signupView: SignupView
@@ -94,7 +63,7 @@ final class RootViewController: UIViewController {
 
 // MARK: Override
 
-extension RootViewController {
+extension SignupVC {
 
     override func loadView() {
         view = signupView

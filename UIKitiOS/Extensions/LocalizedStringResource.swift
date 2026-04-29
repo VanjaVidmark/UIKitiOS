@@ -11,4 +11,8 @@ extension LocalizedStringResource: @retroactive LocalizedError {
     public var errorDescription: String? {
         String(localized: self)
     }
+    
+    static func homeWelcome(email: String) -> LocalizedStringResource {
+        LocalizedStringResource("homeWelcome", defaultValue: "Welcome, \(email)")
+    }
 }

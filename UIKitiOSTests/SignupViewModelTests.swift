@@ -16,7 +16,7 @@ func sut(
     onButtonTapPublisher: any Publisher<Void, Never> = Empty(completeImmediately: true),
     signUpService: any SignupService = MockSignupService(),
     navigator: any SignupNavigationDelegate = MockSignupNavigationDelegate(),
-    
+
 ) -> SignupViewModel {
     SignupViewModel(
         onEmailChangedPublisher: onEmailChangedPublisher,
@@ -28,107 +28,82 @@ func sut(
     )
 }
 
-final class MockSignupService: SignupService {
-    nonisolated(unsafe) var wasSignupCalled = false
-    
-    nonisolated func signup(user: User) -> AnyPublisher<JWT, ApiError> {
-        defer {
-            wasSignupCalled = true
-        }
-        return Just<JWT>("this-is-a-token")
-            .setFailureType(to: ApiError.self)
-            .eraseToAnyPublisher()
-    }
-}
-
-final class MockSignupNavigationDelegate: SignupNavigationDelegate {
-    nonisolated(unsafe) var wasUserSignedUpCalled = false
-    
-    nonisolated func userSignedUp(jwt: JWT) {
-        defer {
-            wasUserSignedUpCalled = true
-        }
-        log.debug("About to navigate after successful sign up")
-    }
-}
-
-
 final class Box<Value> {
     var value: Value?
-    
+
     init(value: Value? = nil) {
         self.value = value
     }
 }
 
 final class SignupViewModelTests: XCTestCase {
-    
+
     var cancellables: Set<AnyCancellable> = []
-    
+
     override func tearDown() {
         cancellables.forEach({c in c.cancel()})
         cancellables.removeAll()
     }
-    
+
     // MARK: invalidEmailMessagePublisher
-    
+
     func test_invalidEmailMessagePublisher_whenInvalidEmail_thenEmits() async {
         // Arrange
         let emailSubject = PassthroughSubject<String, Never>()
         let sut = sut(onEmailChangedPublisher: emailSubject)
         let sink = Box<String?>()
-        
+
         // Act
         let expectation = expectEmittedValue(
             from: sut.invalidEmailMessagePublisher,
             sink: sink,
         )
         emailSubject.send("invalid-email")
-        
+
         // Assert
         await fulfillment(of: [expectation], timeout: 0.1)
         XCTAssertEqual(sink.value, String(localized: .signupInvalidEmail))
     }
-    
+
     func test_invalidEmailMessagePublisher_whenEmptyEmail_thenEmits() async {
         // Arrange
         let emailSubject = PassthroughSubject<String, Never>()
         let sut = sut(onEmailChangedPublisher: emailSubject)
         let sink = Box<String?>()
-        
+
         // Act
         let expectation = expectEmittedValue(
             from: sut.invalidEmailMessagePublisher,
             sink: sink,
         )
         emailSubject.send("")
-        
+
         // Assert
         await fulfillment(of: [expectation], timeout: 0.1)
         XCTAssertEqual(sink.value, String(localized: .signupInvalidEmail))
     }
-    
+
     func test_invalidEmailMessagePublisher_whenValidEmail_thenNil() async {
         // Arrange
         let emailSubject = PassthroughSubject<String, Never>()
         let sut = sut(onEmailChangedPublisher: emailSubject)
         let sink = Box<String?>()
-        
+
         // Act
         let expectation = expectEmittedValue(
             from: sut.invalidEmailMessagePublisher,
             sink: sink,
         )
         emailSubject.send("user@example.com")
-        
+
         // Assert
         await fulfillment(of: [expectation], timeout: 0.1)
         XCTAssertNil((sink.value ?? ""))
     }
-    
-    
+
+
     // MARK: isFormValidPublisher
-    
+
     func test_isFormValidPublisher_whenAllFieldsValid_thenEmits() async {
         // Arrange
         let emailSubject = PassthroughSubject<String, Never>()
@@ -140,44 +115,44 @@ final class SignupViewModelTests: XCTestCase {
             onConfirmationChangedPublisher: confirmPasswordSubject,
         )
         let sink = Box<Bool>()
-        
+
         // Act
         let expectation = expectEmittedValue(
             from: sut.isFormValidPublisher,
             sink: sink,
         )
-        
+
         emailSubject.send("valid@email.com")
         passwordSubject.send("strongPassword123")
         confirmPasswordSubject.send("strongPassword123")
-        
+
         // Assert
         await fulfillment(of: [expectation], timeout: 0.1)
         XCTAssertTrue(try XCTUnwrap(sink.value))
     }
-    
+
     // MARK: onSignupTapped
-    
+
     func test_onSignupTapped_whenCalled_thenCallsService() async /* needed to bypass xcode26.1 bug forums.swift.org/t/84034 */ {
         // Arrange
         let service = MockSignupService()
         let sut = sut(signUpService: service)
-        
+
         // Act
         sut.onSignupTapped(user: .example)
-        
+
         // Assert
         XCTAssertTrue(service.wasSignupCalled)
     }
-    
+
     func test_onSignupTapped_whenCalled_thenCallsNavigator() async /* needed to bypass xcode26.1 bug forums.swift.org/t/84034 */ {
         // Arrange
         let navigator = MockSignupNavigationDelegate()
         let sut = sut(navigator: navigator)
-        
+
         // Act
         sut.onSignupTapped(user: .example)
-        
+
         // Assert
         XCTAssertTrue(navigator.wasUserSignedUpCalled)
     }
@@ -186,18 +161,18 @@ final class SignupViewModelTests: XCTestCase {
 // MARK: Helpers
 
 extension SignupViewModelTests {
-    
+
     private func expectEmittedValue<Value>(
         from publisher: any Publisher<Value, Never>,
         sink boxToWriteTo: Box<Value>
     ) -> XCTestExpectation {
         let expectation = XCTestExpectation(description: "Receive value")
-        
+
         publisher.sink { value in
             boxToWriteTo.value = value
             expectation.fulfill()
         }.store(in: &cancellables)
-        
+
         return expectation
     }
 }
