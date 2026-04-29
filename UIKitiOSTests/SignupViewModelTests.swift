@@ -133,13 +133,15 @@ final class SignupViewModelTests: XCTestCase {
 
     func test_onSignupTapped_whenCalled_thenCallsNavigator() async /* needed to bypass xcode26.1 bug forums.swift.org/t/84034 */ {
         // Arrange
-        let navigator = MockSignupNavigationDelegate()
+        let expectation = XCTestExpectation(description: "Navigation is called")
+        let navigator = MockSignupNavigationDelegate(expectation: expectation)
         let sut = sut(navigator: navigator)
 
         // Act
         sut.onSignupTapped(user: .example)
 
         // Assert
+        await fulfillment(of: [expectation], timeout: 0.1)
         XCTAssertTrue(navigator.wasUserSignedUpCalled)
     }
 }

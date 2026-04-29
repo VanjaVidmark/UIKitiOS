@@ -13,13 +13,13 @@ protocol SignupService: AnyObject {
 }
 
 final class DummySignupService: SignupService {
-    private let queue = DispatchQueue(label: "networking", qos: .background)
+    private let queue = DispatchQueue(label: "networking", qos: .userInitiated)
     
     func signup(user: User) -> AnyPublisher<JWT, ApiError> {
         Future<JWT, ApiError> { promise in
             promise(.success("this-is-a-token"))
         }
-        .receive(on: queue)
+        .subscribe(on: queue)
         .eraseToAnyPublisher()
     }
 }

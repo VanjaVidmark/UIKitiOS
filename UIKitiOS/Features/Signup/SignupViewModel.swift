@@ -112,6 +112,9 @@ extension SignupViewModel {
         }
         
         signupService.signup(user: user)
+            .print("1")
+            .receive(on: DispatchQueue.main)
+            .print("SignupService")
             .sink(receiveCompletion: { completion in
                 switch completion {
                     case .finished:
@@ -122,7 +125,9 @@ extension SignupViewModel {
                 }
             }, receiveValue: { [weak navigator] value in
                 guard let navigator else { log.debug("navigator is nil"); return }
+                log.debug("about to call userSignedUp")
                 navigator.userSignedUp(jwt: value, user: user)
+                
             })
             .store(in: &cancellables)
     }

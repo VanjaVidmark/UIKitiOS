@@ -10,14 +10,18 @@ import Combine
 
 final class MockAlwaysSuccessfulSignupService: SignupService {
     nonisolated(unsafe) var userSignedUp: User? = nil
-
-    nonisolated func signup(user: User) -> AnyPublisher<JWT, ApiError> {
+    
+    private let queue = DispatchQueue(label: "networking", qos: .userInitiated)
+    
+    func signup(user: User) -> AnyPublisher<JWT, ApiError> {
         defer {
             userSignedUp = user
         }
-        return Just<JWT>("this-is-a-token")
-            .setFailureType(to: ApiError.self)
-            .eraseToAnyPublisher()
+        return Future<JWT, ApiError> { promise in
+            promise(.success("mock-token"))
+        }
+        .subscribe(on: queue)
+        .eraseToAnyPublisher()
     }
     
     deinit {
