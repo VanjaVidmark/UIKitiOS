@@ -16,7 +16,8 @@ final class DummySignupService: SignupService {
     private let queue = DispatchQueue(label: "networking", qos: .userInitiated)
     
     func signup(user: User) -> AnyPublisher<JWT, ApiError> {
-        Future<JWT, ApiError> { promise in
+        sleep(1)
+        return Future<JWT, ApiError> { promise in
             promise(.success("this-is-a-token"))
         }
         .subscribe(on: queue)

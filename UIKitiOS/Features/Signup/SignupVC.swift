@@ -54,8 +54,8 @@ final class SignupVC: UIViewController {
             .sink(receiveValue: { [weak self] localizedError in self?.signupView.setConfirmationError(localizedError) })
             .store(in: &cancellables)
         
-        vm.isFormValidPublisher
-            .sink(receiveValue: { [weak self] isFormValid in self?.signupView.setButtonEnabled(isFormValid) })
+        vm.isButtonEnabledPublisher
+            .sink(receiveValue: { [weak self] isButtonEnabled in self?.signupView.setButtonEnabled(isButtonEnabled) })
             .store(in: &cancellables)
     }
     

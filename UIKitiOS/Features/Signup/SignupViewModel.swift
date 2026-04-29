@@ -10,13 +10,7 @@ import Combine
 
 final class SignupViewModel {
     
-    private let emailSubject = PassthroughSubject<Email?, Never>()
-    private let passwordSubject = PassthroughSubject<Password?, Never>()
-    private let confirmationSubject = PassthroughSubject<Password?, Never>()
-    
-    private let onFormValidityChangedSubject = PassthroughSubject<Bool, Never>()
-    private let onConfirmationMismatchSubject = PassthroughSubject<Void, Never>()
-    
+    // Received from view. Used to react to user interactions
     private let onEmailChangedPublisher: AnyPublisher<String, Never>
     private let onPasswordChangedPublisher: AnyPublisher<String, Never>
     private let onConfirmationChangedPublisher: AnyPublisher<String, Never>
@@ -27,6 +21,12 @@ final class SignupViewModel {
     private weak var userStorage: (any SecureStorageOfUser)?
     
     private var cancellables: Set<AnyCancellable> = []
+    
+    // Created in vm
+    private let emailSubject = PassthroughSubject<Email?, Never>()
+    private let passwordSubject = PassthroughSubject<Password?, Never>()
+    private let confirmationSubject = PassthroughSubject<Password?, Never>()
+    private let isLoadingSubject = PassthroughSubject<Bool, Never>()
     
     init(
         onEmailChangedPublisher: any Publisher<String, Never>,
@@ -73,9 +73,16 @@ final class SignupViewModel {
 
 extension SignupViewModel {
     
+    /*
     var isFormValidPublisher: AnyPublisher<Bool, Never> {
         validUserPublisher
             .map {validUser in validUser != nil}
+            .eraseToAnyPublisher()
+    }*/
+    
+    var isButtonEnabledPublisher: AnyPublisher<Bool, Never> {
+        Publishers.CombineLatest(validUserPublisher, isLoadingSubject.prepend(false))
+            .map { validUser, isLoading in validUser != nil && !isLoading }
             .eraseToAnyPublisher()
     }
     
@@ -114,17 +121,17 @@ extension SignupViewModel {
             return
         }
         
+        isLoadingSubject.send(true)
         signupService.signup(user: user)
-            .print("1")
             .receive(on: DispatchQueue.main)
-            .print("SignupService")
-            .sink(receiveCompletion: { completion in
+            .sink(receiveCompletion: { [weak self] completion in
                 switch completion {
                     case .finished:
                         log.debug("Signup publisher finished")
                     case let .failure(error):
                         log.error("\(error)")
                         log.debug("Here I would display the error to the user")
+                        self?.isLoadingSubject.send(false)
                 }
             }, receiveValue: { [weak self] value in self?.userDidSignUp(jwt: value, user: user)
             })
