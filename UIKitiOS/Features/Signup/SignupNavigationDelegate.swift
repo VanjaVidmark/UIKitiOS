@@ -6,11 +6,11 @@
 //
 
 protocol SignupNavigationDelegate: AnyObject {
-    func userSignedUp(jwt: JWT)
+    func userSignedUp(jwt: JWT, user: User)
 }
 
 final class DummySignupNavigationDelegate: SignupNavigationDelegate {
-    func userSignedUp(jwt: JWT) {
+    func userSignedUp(jwt: JWT, user: User) {
         log.debug("About to navigate after successful sign up")
     }
     deinit {

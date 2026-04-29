@@ -33,7 +33,7 @@ final class SignupViewModel {
         onConfirmationChangedPublisher: any Publisher<String, Never>,
         onButtonTapPublisher: any Publisher<Void, Never>,
         signupService: SignupService,
-        navigator: SignupNavigationDelegate,
+        navigator: any SignupNavigationDelegate,
     ) {
         self.signupService = signupService
         self.navigator = navigator
@@ -121,7 +121,8 @@ extension SignupViewModel {
                         log.debug("Here I would display the error to the user")
                 }
             }, receiveValue: { [weak navigator] value in
-                navigator?.userSignedUp(jwt: value)
+                guard let navigator else { log.debug("navigator is nil"); return }
+                navigator.userSignedUp(jwt: value, user: user)
             })
             .store(in: &cancellables)
     }

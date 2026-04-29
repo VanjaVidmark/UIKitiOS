@@ -26,10 +26,16 @@ extension AppCoordinator {
     
 }
 
+extension AppCoordinator: SignupNavigationDelegate {
+    func userSignedUp(jwt: JWT, user: User) {
+        toHome(loggedInUser: user)
+    }
+}
+
 extension AppCoordinator {
     
     private func makeSignupVC() -> SignupVC {
-        SignupVC()
+        SignupVC(navigationDelegate: self)
     }
     
     private func toSignup() {
@@ -50,12 +56,14 @@ extension AppCoordinator {
 final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 	var window: UIWindow?
+    var appCoordinator: AppCoordinator?
 
 	func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
 		guard let windowScene = (scene as? UIWindowScene) else { return }
 		let window = UIWindow(windowScene: windowScene)
         let navigationController = UINavigationController()
         let appCoordinator = AppCoordinator(navigationController: navigationController)
+        self.appCoordinator = appCoordinator
         defer {
             appCoordinator.start()
         }

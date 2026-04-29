@@ -13,14 +13,14 @@ final class SignupVC: UIViewController {
     private let signupViewModel: SignupViewModel
     private let signupView: SignupView
     private let signupService: SignupService
-    private let signupNavigationDelegate: SignupNavigationDelegate
+    private unowned let signupNavigationDelegate: any SignupNavigationDelegate
     
     private lazy var cancellables = Set<AnyCancellable>()
     
-    init() {
+    init(navigationDelegate: any SignupNavigationDelegate) {
         self.signupView = SignupView()
         self.signupService = DummySignupService()
-        self.signupNavigationDelegate = DummySignupNavigationDelegate()
+        self.signupNavigationDelegate = navigationDelegate
         
         let vm = SignupViewModel(
             onEmailChangedPublisher: self.signupView.onEmailChangedPublisher,
