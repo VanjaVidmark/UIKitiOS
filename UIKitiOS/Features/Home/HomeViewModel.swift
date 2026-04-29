@@ -6,14 +6,13 @@
 //
 
 final class HomeViewModel {
-    // Now that the state is not explicitly bound to the view (via a textfield)
-    // the VM can hold the state?
-    
-    private var loggedInUser: User
-    
-    var welcomeMessage: String { "Welcome, \(loggedInUser.email)" }
+    private let loggedInUser: User
     
     init(loggedInUser: User) {
         self.loggedInUser = loggedInUser
     }
+}
+
+extension HomeViewModel {
+    var welcomeMessage: String { "Welcome, \(loggedInUser.email)" }
 }
