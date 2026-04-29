@@ -27,3 +27,5 @@ extension Email: CustomStringConvertible {
         static let example: Self = try! .init(raw: "test@example.com")
     #endif
 }
+
+extension Email: Equatable {}

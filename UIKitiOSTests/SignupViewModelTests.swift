@@ -9,25 +9,6 @@ import XCTest
 import Combine
 @testable import UIKitiOS
 
-func sut(
-    onEmailChangedPublisher: any Publisher<String, Never> = Empty(completeImmediately: true),
-    onPasswordChangedPublisher: any Publisher<String, Never> = Empty(completeImmediately: true),
-    onConfirmationChangedPublisher: any Publisher<String, Never> = Empty(completeImmediately: true),
-    onButtonTapPublisher: any Publisher<Void, Never> = Empty(completeImmediately: true),
-    signUpService: any SignupService = MockSignupService(),
-    navigator: any SignupNavigationDelegate = MockSignupNavigationDelegate(),
-
-) -> SignupViewModel {
-    SignupViewModel(
-        onEmailChangedPublisher: onEmailChangedPublisher,
-        onPasswordChangedPublisher: onPasswordChangedPublisher,
-        onConfirmationChangedPublisher: onConfirmationChangedPublisher,
-        onButtonTapPublisher: onButtonTapPublisher,
-        signupService: signUpService,
-        navigator: navigator,
-    )
-}
-
 final class Box<Value> {
     var value: Value?
 
@@ -39,8 +20,12 @@ final class Box<Value> {
 final class SignupViewModelTests: XCTestCase {
 
     var cancellables: Set<AnyCancellable> = []
+    var defaultUserService: any SignupService = MockAlwaysSuccessfulSignupService()
+    var defaultNavigationDelegate: any SignupNavigationDelegate = MockSignupNavigationDelegate()
 
     override func tearDown() {
+        defaultUserService = MockAlwaysSuccessfulSignupService()
+        defaultNavigationDelegate = MockSignupNavigationDelegate()
         cancellables.forEach({c in c.cancel()})
         cancellables.removeAll()
     }
@@ -135,14 +120,15 @@ final class SignupViewModelTests: XCTestCase {
 
     func test_onSignupTapped_whenCalled_thenCallsService() async /* needed to bypass xcode26.1 bug forums.swift.org/t/84034 */ {
         // Arrange
-        let service = MockSignupService()
+        let service = MockAlwaysSuccessfulSignupService()
         let sut = sut(signUpService: service)
+        let user = User.example
 
         // Act
-        sut.onSignupTapped(user: .example)
+        sut.onSignupTapped(user: user)
 
         // Assert
-        XCTAssertTrue(service.wasSignupCalled)
+        XCTAssertEqual(user, service.userSignedUp)
     }
 
     func test_onSignupTapped_whenCalled_thenCallsNavigator() async /* needed to bypass xcode26.1 bug forums.swift.org/t/84034 */ {
@@ -161,6 +147,24 @@ final class SignupViewModelTests: XCTestCase {
 // MARK: Helpers
 
 extension SignupViewModelTests {
+    
+    func sut(
+        onEmailChangedPublisher: any Publisher<String, Never> = Empty(completeImmediately: true),
+        onPasswordChangedPublisher: any Publisher<String, Never> = Empty(completeImmediately: true),
+        onConfirmationChangedPublisher: any Publisher<String, Never> = Empty(completeImmediately: true),
+        onButtonTapPublisher: any Publisher<Void, Never> = Empty(completeImmediately: true),
+        signUpService: (any SignupService)? = nil,
+        navigator: (any SignupNavigationDelegate)? = nil,
+    ) -> SignupViewModel {
+        SignupViewModel(
+            onEmailChangedPublisher: onEmailChangedPublisher,
+            onPasswordChangedPublisher: onPasswordChangedPublisher,
+            onConfirmationChangedPublisher: onConfirmationChangedPublisher,
+            onButtonTapPublisher: onButtonTapPublisher,
+            signupService: signUpService ?? self.defaultUserService,
+            navigator: navigator ?? self.defaultNavigationDelegate,
+        )
+    }
 
     private func expectEmittedValue<Value>(
         from publisher: any Publisher<Value, Never>,

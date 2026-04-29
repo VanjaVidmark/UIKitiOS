@@ -22,8 +22,8 @@ final class SignupViewModel {
     private let onConfirmationChangedPublisher: AnyPublisher<String, Never>
     private let onButtonTapPublisher: AnyPublisher<Void, Never>
     
-    private let signupService: any SignupService
-    private let navigator: any SignupNavigationDelegate
+    private weak var signupService: (any SignupService)?
+    private weak var navigator: (any SignupNavigationDelegate)?
     
     private var cancellables: Set<AnyCancellable> = []
     
@@ -106,6 +106,11 @@ extension SignupViewModel {
 extension SignupViewModel {
     
     func onSignupTapped(user: User) {
+        guard let signupService else {
+            log.warning("signupService is nil. Will not sign up")
+            return
+        }
+        
         signupService.signup(user: user)
             .sink(receiveCompletion: { completion in
                 switch completion {
@@ -115,8 +120,8 @@ extension SignupViewModel {
                         log.error("\(error)")
                         log.debug("Here I would display the error to the user")
                 }
-            }, receiveValue: { [weak self] value in
-                self?.navigator.userSignedUp(jwt: value)
+            }, receiveValue: { [weak navigator] value in
+                navigator?.userSignedUp(jwt: value)
             })
             .store(in: &cancellables)
     }

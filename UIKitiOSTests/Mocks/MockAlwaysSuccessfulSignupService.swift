@@ -8,15 +8,19 @@
 import Combine
 @testable import UIKitiOS
 
-final class MockSignupService: SignupService {
-    nonisolated(unsafe) var wasSignupCalled = false
+final class MockAlwaysSuccessfulSignupService: SignupService {
+    nonisolated(unsafe) var userSignedUp: User? = nil
 
     nonisolated func signup(user: User) -> AnyPublisher<JWT, ApiError> {
         defer {
-            wasSignupCalled = true
+            userSignedUp = user
         }
         return Just<JWT>("this-is-a-token")
             .setFailureType(to: ApiError.self)
             .eraseToAnyPublisher()
+    }
+    
+    deinit {
+        log.debug("mockSignupService deinit")
     }
 }

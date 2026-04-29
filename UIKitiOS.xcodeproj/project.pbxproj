@@ -25,8 +25,8 @@
 		455B03B22FA1D777008DC625 /* Exceptions for "UIKitiOSTests" folder in "UIKitiOS" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Mocks/MockAlwaysSuccessfulSignupService.swift,
 				Mocks/MockSignupNavigationDelegate.swift,
-				Mocks/MockSignupService.swift,
 				Models/ModelTests.swift,
 				SignupViewModelTests.swift,
 			);
@@ -35,8 +35,8 @@
 		455B03B32FA1D777008DC625 /* Exceptions for "UIKitiOSTests" folder in "UIKitiOSTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Mocks/MockAlwaysSuccessfulSignupService.swift,
 				Mocks/MockSignupNavigationDelegate.swift,
-				Mocks/MockSignupService.swift,
 				Models/ModelTests.swift,
 				SignupViewModelTests.swift,
 			);

@@ -8,9 +8,9 @@
 @testable import UIKitiOS
 
 final class MockSignupNavigationDelegate: SignupNavigationDelegate {
-    nonisolated(unsafe) var wasUserSignedUpCalled = false
+    var wasUserSignedUpCalled = false
 
-    nonisolated func userSignedUp(jwt: JWT) {
+    func userSignedUp(jwt: JWT) {
         defer {
             wasUserSignedUpCalled = true
         }
