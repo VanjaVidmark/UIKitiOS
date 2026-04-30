@@ -30,6 +30,7 @@
 				Mocks/MockAlwaysSuccessfulSignupService.swift,
 				Mocks/MockInsecureStorageOfUser.swift,
 				Mocks/MockSignupNavigationDelegate.swift,
+				Mocks/MockUINavigationController.swift,
 				Models/ModelTests.swift,
 				SignupViewModelTests.swift,
 			);
@@ -43,6 +44,7 @@
 				Mocks/MockAlwaysSuccessfulSignupService.swift,
 				Mocks/MockInsecureStorageOfUser.swift,
 				Mocks/MockSignupNavigationDelegate.swift,
+				Mocks/MockUINavigationController.swift,
 				Models/ModelTests.swift,
 				SignupViewModelTests.swift,
 			);

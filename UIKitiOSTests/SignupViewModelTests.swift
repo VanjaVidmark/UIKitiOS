@@ -165,7 +165,7 @@ extension SignupViewModelTests {
             onButtonTapPublisher: onButtonTapPublisher,
             signupService: signUpService ?? self.defaultUserService,
             navigator: navigator ?? self.defaultNavigationDelegate,
-            userStorage: MockEmptyUserStorage()
+            userStorage: MockUserStorage(initialUser: nil)
         )
     }
 

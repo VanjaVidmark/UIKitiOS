@@ -8,15 +8,15 @@
 import UIKit
 
 final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-
+    typealias Coordinator = AppCoordinator<AppScreen>
 	var window: UIWindow?
-    var appCoordinator: AppCoordinator?
+    var appCoordinator: Coordinator?
 
 	func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
 		guard let windowScene = (scene as? UIWindowScene) else { return }
 		let window = UIWindow(windowScene: windowScene)
         let navigationController = UINavigationController()
-        let appCoordinator = AppCoordinator(
+        let appCoordinator = Coordinator(
             navigationController: navigationController,
             userStorage: Insecure︕！StorageOfUser.shared,
         )

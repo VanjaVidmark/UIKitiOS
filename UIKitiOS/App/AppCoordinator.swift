@@ -6,15 +6,14 @@
 //
 
 import Foundation
-import UIKit
-
-final class AppCoordinator {
+ 
+final class AppCoordinator<Screen: AppScreenProtocol>{
     
-    private let navigationController: UINavigationController
+    private unowned let navigationController: any NavigationProtocol<Screen>
     private unowned let userStorage: any SecureStorageOfUser
     
     init(
-        navigationController: UINavigationController,
+        navigationController: any NavigationProtocol<Screen>,
         userStorage: any SecureStorageOfUser,
     ) {
         self.navigationController = navigationController
@@ -27,9 +26,9 @@ extension AppCoordinator {
     
     func start() {
         if let user = try? userStorage.loadUser() {
-            toHome(loggedInUser: user)
+            toHome(loggedInUser: user, animated: false)
         } else {
-            toSignup()
+            toSignup(animated: false)
         }
     }
     
@@ -37,13 +36,13 @@ extension AppCoordinator {
 
 extension AppCoordinator: SignupNavigationDelegate {
     func userSignedUp(jwt: JWT, user: User) {
-        toHome(loggedInUser: user)
+        toHome(loggedInUser: user, animated: true)
     }
 }
 
 extension AppCoordinator: HomeNavigationDelegate {
     func userSignedOut() {
-        toSignup()
+        toSignup(animated: true)
     }
 }
 
@@ -51,21 +50,22 @@ extension AppCoordinator: HomeNavigationDelegate {
 
 extension AppCoordinator {
     
-    private func makeSignupVC() -> SignupVC {
-        SignupVC(navigationDelegate: self, userStorage: userStorage)
+    private func makeSignupScreen() -> Screen {
+        Screen.makeSignup(userStorage: userStorage, navigationDelegate: self)
     }
     
-    private func toSignup() {
-        let vc = makeSignupVC()
-        navigationController.setViewControllers([vc], animated: false)
+    private func toSignup(animated: Bool = false) {
+        let screen = makeSignupScreen()
+        navigationController.setScreens([screen], animated: animated)
     }
     
-    private func makeHomeVC(loggedInUser: User) -> HomeVC {
-        HomeVC(loggedInUser: loggedInUser, userStorage: userStorage, navigationDelegate: self)
+    private func makeHomeScreen(loggedInUser: User) -> Screen {
+        Screen.makeHome(loggedInUser: loggedInUser, userStorage: userStorage, navigationDelegate: self)
     }
     
-    private func toHome(loggedInUser: User, animated: Bool = true) {
-        let vc = makeHomeVC(loggedInUser: loggedInUser)
-        navigationController.setViewControllers([vc], animated: animated)
+    private func toHome(loggedInUser: User, animated: Bool = false) {
+        let screen = makeHomeScreen(loggedInUser: loggedInUser)
+        navigationController.setScreens([screen], animated: animated)
     }
 }
+

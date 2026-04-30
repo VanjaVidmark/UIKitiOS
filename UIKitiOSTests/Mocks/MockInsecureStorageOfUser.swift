@@ -5,28 +5,34 @@
 
 @testable import UIKitiOS
 
-final class MockUserStorageWithUser: SecureStorageOfUser {
-    private let user: User
+final class MockUserStorage: SecureStorageOfUser {
+    var user: User?
 
-    init(user: User = .example) {
-        self.user = user
+    init(
+        initialUser: User?
+    ) {
+        self.user = initialUser
     }
-
-    func saveUser(_ value: User) throws {}
-    func loadUser() throws -> User? { user }
-    func clearUser() {}
     
     deinit {
-        log.debug("Deinit MockUserStorageWithUser")
+        log.debug("Deinit MockUserStorage")
     }
 }
 
-final class MockEmptyUserStorage: SecureStorageOfUser {
-    func saveUser(_ value: User) throws {}
-    func loadUser() throws -> User? { nil }
-    func clearUser() {}
-    
-    deinit {
-        log.debug("Deinit MockEmptyUserStorage")
+extension MockUserStorage {
+    func saveUser(_ value: User) throws {
+        self.user = value
+    }
+    func loadUser() throws -> User? {
+        user
+    }
+    func clearUser() {
+        self.user = nil
+    }
+}
+
+extension MockUserStorage {
+    static func withUser() -> Self {
+        Self.init(initialUser: .example)
     }
 }
