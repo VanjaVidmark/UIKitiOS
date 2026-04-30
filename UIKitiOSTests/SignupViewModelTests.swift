@@ -87,9 +87,9 @@ final class SignupViewModelTests: XCTestCase {
     }
 
 
-    // MARK: isFormValidPublisher
+    // MARK: isButtonEnabledPublisher
 
-    func test_isFormValidPublisher_whenAllFieldsValid_thenEmits() async {
+    func test_isButtonEnabledPublisher_whenAllFieldsValid_thenEmits() async {
         // Arrange
         let emailSubject = PassthroughSubject<String, Never>()
         let passwordSubject = PassthroughSubject<String, Never>()
@@ -103,7 +103,7 @@ final class SignupViewModelTests: XCTestCase {
 
         // Act
         let expectation = expectEmittedValue(
-            from: sut.isFormValidPublisher,
+            from: sut.isButtonEnabledPublisher,
             sink: sink,
         )
 
@@ -165,6 +165,7 @@ extension SignupViewModelTests {
             onButtonTapPublisher: onButtonTapPublisher,
             signupService: signUpService ?? self.defaultUserService,
             navigator: navigator ?? self.defaultNavigationDelegate,
+            userStorage: MockEmptyUserStorage()
         )
     }
 

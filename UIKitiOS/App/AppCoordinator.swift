@@ -26,7 +26,6 @@ final class AppCoordinator {
 extension AppCoordinator {
     
     func start() {
-        log.warning("Incorrectly always navigating to signup")
         if let user = try? userStorage.loadUser() {
             toHome(loggedInUser: user)
         } else {

@@ -10,6 +10,9 @@ import Combine
 
 final class SignupViewModel {
     
+    // Stateful
+    private let isLoadingSubject = CurrentValueSubject<Bool, Never>(false)
+    
     // Received from view. Used to react to user interactions
     private let onEmailChangedPublisher: AnyPublisher<String, Never>
     private let onPasswordChangedPublisher: AnyPublisher<String, Never>
@@ -26,7 +29,6 @@ final class SignupViewModel {
     private let emailSubject = PassthroughSubject<Email?, Never>()
     private let passwordSubject = PassthroughSubject<Password?, Never>()
     private let confirmationSubject = PassthroughSubject<Password?, Never>()
-    private let isLoadingSubject = PassthroughSubject<Bool, Never>()
     
     init(
         onEmailChangedPublisher: any Publisher<String, Never>,
@@ -81,7 +83,7 @@ extension SignupViewModel {
     }*/
     
     var isButtonEnabledPublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest(validUserPublisher, isLoadingSubject.prepend(false))
+        Publishers.CombineLatest(validUserPublisher, isLoadingSubject)
             .map { validUser, isLoading in validUser != nil && !isLoading }
             .eraseToAnyPublisher()
     }
@@ -124,14 +126,16 @@ extension SignupViewModel {
         isLoadingSubject.send(true)
         signupService.signup(user: user)
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { [weak self] completion in
+            .sink(receiveCompletion: { [weak isLoadingSubject] completion in
+                defer {
+                    isLoadingSubject?.send(false)
+                }
                 switch completion {
                     case .finished:
                         log.debug("Signup publisher finished")
                     case let .failure(error):
                         log.error("\(error)")
                         log.debug("Here I would display the error to the user")
-                        self?.isLoadingSubject.send(false)
                 }
             }, receiveValue: { [weak self] value in self?.userDidSignUp(jwt: value, user: user)
             })
