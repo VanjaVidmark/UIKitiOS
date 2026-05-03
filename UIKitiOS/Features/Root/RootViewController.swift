@@ -8,8 +8,10 @@
 import UIKit
 
 final class RootViewController: UINavigationController {
-    
+
     private lazy var signupViewController = SignupViewController(onSignupTapped: onSignupTapped)
+
+    private let appTitle = "My App"
 
 }
 
@@ -29,11 +31,9 @@ extension RootViewController {
 
 extension RootViewController {
     
-    private func onSignupTapped(email : Email) -> Void {
-        pushViewController(
-            HomeViewController(email: email),
-            animated: true
-        )
+    private func onSignupTapped(email: Email) {
+        let homeVC = HomeViewController(email: email)
+        pushViewController(homeVC, animated: true)
     }
     
     
