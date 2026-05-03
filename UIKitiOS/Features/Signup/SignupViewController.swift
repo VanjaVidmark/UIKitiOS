@@ -139,11 +139,8 @@ private extension SignupViewController {
     }
     
     func configureSubviews() {
-        
-        guard let result =  validateInputFields() else { return }
-        
-        let canSignUp = result.1 == result.2
-        button.isEnabled = canSignUp
+        let isValid = validateInputFields() != nil
+        button.isEnabled = isValid
     }
     
     func validateInputFields() -> (Email, Password, Password)? {
